@@ -10,7 +10,6 @@
 #define Expression_cpp
 
 #include <vector>
-//#include <exception>
 #include <typeinfo>
 #include <string>
 #include <stack>
@@ -28,6 +27,7 @@ public:
     virtual Expression* simplify() = 0; // allocates on the heap
     virtual Expression* addExpression(Expression* e) = 0;
     virtual Expression* duplicate() = 0;
+    virtual void negate() = 0;
     virtual std::string toString() = 0;
     virtual ~Expression(){}
 };
@@ -35,7 +35,6 @@ public:
 class Integer: public Expression{
 private:
     int value;
-    
 public:
     Integer(int val){
         value = val;
@@ -84,6 +83,9 @@ public:
         std::stringstream str;
         str << value;
         return str.str();
+    }
+    virtual void negate(){
+        value *= -1;
     }
     virtual ~Integer(){}
 };

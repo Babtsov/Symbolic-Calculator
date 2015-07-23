@@ -17,11 +17,13 @@
 #include <vector>
 #include <math.h>
 
-
+// shunting yard algorithm
+int comparePrecedence(std::string lhs,std::string rhs);
 bool isOperation(std::string operation);
 bool isParenthesis(std::string token);
-int comparePrecedence(std::string lhs,std::string rhs);
 std::vector<std::string> convertToRPN(std::vector<std::string> tokens);
+
+// tokenizer
 std::vector<std::string> tokenizer(const std::string& rawString);
 
 #endif /* Tokenizer_cpp */

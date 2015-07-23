@@ -31,13 +31,19 @@ public:
     virtual Expression* getRightSide() {
         return rightSide;
     }
+    
     virtual Expression* addExpression(Expression* e){
         assert(1==0);
         return nullptr;
     }
+    
     virtual Expression* duplicate() {
         //return new Addition(leftSide->duplicate(),rightSide->duplicate());
         return nullptr;
+    }
+    virtual void negate(){
+        leftSide->negate();
+        rightSide->negate();
     }
     
     virtual ~Addition(){

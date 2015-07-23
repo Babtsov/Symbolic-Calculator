@@ -8,9 +8,10 @@
 
 #include "Tokenizer.hpp"
 using namespace std;
+
 // checks if the string is an operation.
 bool isOperation(string operation){
-    set<string> ops ={"+", "+", "*","/","rt"};
+    set<string> ops ={"+", "-", "*","/","rt","^"};
     return ops.count(operation) > 0;
 }
 bool isParenthesis(string token) {
@@ -41,7 +42,7 @@ vector<string> convertToRPN(vector<string> tokens) {
             while (!opStack.empty() && !isParenthesis(opStack.top()) ){
                 auto o2 = opStack.top();
                 // and either o1 is left-associative and its precedence is less than or equal to that of o2
-                if (o1 != "/" && comparePrecedence(o1, o2) <= 0) {
+                if (o1 != "^" && comparePrecedence(o1, o2) <= 0) {
                     // then pop o2 off the operator stack, onto the output queue
                     reversePolish.push_back(o2);
                     opStack.pop();
@@ -73,7 +74,6 @@ vector<string> convertToRPN(vector<string> tokens) {
             }
             opStack.pop();
         }
-        
     }
     /*
      When there are no more tokens to read:
@@ -89,7 +89,6 @@ vector<string> convertToRPN(vector<string> tokens) {
         reversePolish.push_back(opStack.top());
         opStack.pop();
     }
-    
     return reversePolish;
 }
 vector<string> tokenizer(const string& rawString) {
