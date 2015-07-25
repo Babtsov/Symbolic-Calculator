@@ -15,79 +15,25 @@
 #include <stack>
 #include <cassert>
 #include <sstream>
+#include <cmath>
 
 class Expression {
 public:
     virtual double getDecimalRepresentation() = 0;
     virtual Expression* getLeftSide() = 0;
     virtual Expression* getRightSide() = 0;
-    virtual std::vector<Expression*> getNumeratorFactors() = 0;
+    virtual std::vector<Expression*> getNumeratorFactors(bool breakIntoPrimes) = 0;
     virtual std::vector<Expression*> getDenominatorFactors() = 0;
-    virtual std::vector<Expression*> getAdditiveTerms() = 0; //DOESN'T allocate on the heap!
-    virtual Expression* simplify() = 0; // allocates on the heap
+    virtual std::vector<Expression*> getAdditiveTerms() = 0;
+    virtual Expression* simplify() = 0; 
     virtual Expression* addExpression(Expression* e) = 0;
+    virtual Expression* multiplyExpression(Expression* e) = 0;
     virtual Expression* duplicate() = 0;
     virtual void negate() = 0;
+    virtual bool isNegative() = 0;
+    virtual bool isEqual(Expression* e) = 0;
     virtual std::string toString() = 0;
     virtual ~Expression(){}
-};
-
-class Integer: public Expression{
-private:
-    int value;
-public:
-    Integer(int val){
-        value = val;
-    }
-    int getValue(){
-        return value;
-    }
-    virtual double getDecimalRepresentation(){
-        return static_cast<double>(value);
-    }
-    virtual Expression* getLeftSide() {
-        return nullptr;
-    }
-    virtual Expression* getRightSide() {
-        return nullptr;
-    }
-    virtual std::vector<Expression*> getNumeratorFactors() {
-        std::vector<Expression*> numFactors;
-        numFactors.push_back(new Integer(value));
-        return numFactors;
-    }
-    virtual std::vector<Expression*> getDenominatorFactors() {
-        std::vector<Expression*> denumFactors;
-        denumFactors.push_back(new Integer(1));
-        return denumFactors;
-    }
-    virtual std::vector<Expression*> getAdditiveTerms() {
-        std::vector<Expression*> addTerms;
-        addTerms.push_back(this);
-        return addTerms;
-    }
-    virtual Expression* simplify() {
-        return new Integer(value);
-    }
-    virtual Expression* addExpression(Expression* e) {
-        Integer* intExpression = dynamic_cast<Integer*>(e);
-        if ( intExpression != nullptr) {
-            return new Integer(this->value + intExpression->getValue());
-        }
-        return nullptr;
-    }
-    virtual Expression* duplicate() {
-        return new Integer(value);
-    }
-    virtual std::string toString() {
-        std::stringstream str;
-        str << value;
-        return str.str();
-    }
-    virtual void negate(){
-        value *= -1;
-    }
-    virtual ~Integer(){}
 };
 
 

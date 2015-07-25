@@ -10,42 +10,42 @@
 #define Addition_cpp
 
 #include "Expression.hpp"
+#include "Integer.hpp"
 
 class Addition : public Expression {
 private:
     Expression* leftSide;
     Expression* rightSide;
-    Integer* addIntegers(Integer* lhs, Integer* rhs);
     
 public:
     Addition(Expression* ls,Expression* rs);
     virtual double getDecimalRepresentation();
-    virtual std::vector<Expression*> getNumeratorFactors() {return std::vector<Expression*>();};
-    virtual std::vector<Expression*> getDenominatorFactors(){return std::vector<Expression*>();};
+    virtual std::vector<Expression*> getNumeratorFactors(bool breakIntoPrimes);
+    virtual std::vector<Expression*> getDenominatorFactors();
     virtual std::vector<Expression*> getAdditiveTerms();
     virtual Expression* simplify();
     virtual std::string toString();
+    
     virtual Expression* getLeftSide() {
         return leftSide;
     }
     virtual Expression* getRightSide() {
         return rightSide;
     }
-    
     virtual Expression* addExpression(Expression* e){
-        assert(1==0);
+        assert(0); //should not be invoked. denotes an internal error in the system
         return nullptr;
     }
-    
-    virtual Expression* duplicate() {
-        //return new Addition(leftSide->duplicate(),rightSide->duplicate());
-        return nullptr;
-    }
+    virtual Expression* multiplyExpression(Expression* e);
+    virtual Expression* duplicate();
     virtual void negate(){
         leftSide->negate();
         rightSide->negate();
     }
-    
+    virtual bool isNegative() {
+        return false;
+    }
+    virtual bool isEqual(Expression* e);
     virtual ~Addition(){
         delete leftSide;
         delete rightSide;

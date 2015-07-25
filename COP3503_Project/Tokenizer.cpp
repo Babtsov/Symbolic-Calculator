@@ -19,7 +19,7 @@ bool isParenthesis(string token) {
 }
 // compares the precedence with respect to the lhs.
 int comparePrecedence(string lhs,string rhs) {
-    map<string,int> precedence = {{"+",0},{"-",0},{"*",1},{"/",1},{"rt",2}};
+    map<string,int> precedence = {{"+",0},{"-",0},{"*",1},{"/",1},{"rt",2},{"^",2}};
     return precedence[lhs] - precedence[rhs];
 }
 

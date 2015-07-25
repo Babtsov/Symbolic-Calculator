@@ -8,7 +8,8 @@
 #include "Tokenizer.hpp"
 #include "Expression.hpp"
 #include "Addition.hpp"
-#include <typeinfo>
+#include "Multiplication.hpp"
+#include "tests/DataStructureTests.hpp"
 using namespace std;
 
 Expression* treeBuilder(vector<string> RPNtokens) {
@@ -23,6 +24,13 @@ Expression* treeBuilder(vector<string> RPNtokens) {
                 arg1->negate();
             expStack.push(new Addition(arg2,arg1));
         }
+        else if(token == "*") {
+            Expression* arg1 = expStack.top();
+            expStack.pop();
+            Expression* arg2 = expStack.top();
+            expStack.pop();
+            expStack.push(new Multiplication(arg2,arg1));
+        }
         else {
             expStack.push(new Integer(stoi(token)));
         }
@@ -30,12 +38,11 @@ Expression* treeBuilder(vector<string> RPNtokens) {
     return expStack.top();
 }
 
-
 int main(int argc, const char * argv[]) {
     cout << "> ";
     //Collect all the tokens from the user
 //    stringstream cin;
-//    cin << "3 + 4 * ( 1 + 3 )";
+//    cin << "4 * -5 * ( -3 - -7 ) - 2 + ( 6 * ( 5 - 8 ) - 9 )";
 
     string inputStr,token;
     getline(cin,inputStr);
@@ -51,17 +58,7 @@ int main(int argc, const char * argv[]) {
     auto root = treeBuilder(RPN_tokens);
     cout << "Unsimplified: "<< root->toString() << endl;
     cout << "Simplified: " << root->simplify()->toString() << endl;
-//    cout << endl;
-//    Expression* s1 = new Integer(80);
-//    Expression* s2 = new Integer(10);
-//    Expression* s3 = new Addition(s1,s2);
-//    
-//    Expression* s4 = new Integer(5);
-//    Expression* s5 = new Addition(s4,s3);
-    
-    
-//    Expression* simplified = s5->simplify();
-//    cout << simplified->toString() << endl;
-//    cout << s5->toString() << endl;
+
+    delete root;
     return 0;
 }

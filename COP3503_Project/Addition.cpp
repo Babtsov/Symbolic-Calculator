@@ -16,9 +16,17 @@ Addition::Addition(Expression* ls,Expression* rs) {
 double Addition::getDecimalRepresentation() {
     return leftSide->getDecimalRepresentation() + rightSide->getDecimalRepresentation();
 }
-Integer* Addition::addIntegers(Integer* lhs, Integer* rhs) {
-    return new Integer(lhs->getValue() + rhs->getValue());
+std::vector<Expression*> Addition::getNumeratorFactors(bool breakIntoPrimes = false) {
+    vector<Expression*> factors;
+    factors.push_back(this->duplicate());
+    return factors;
 }
+std::vector<Expression*> Addition::getDenominatorFactors() {
+    vector<Expression*> factors;
+    factors.push_back(new Integer(1));
+    return factors;
+}
+
 Expression* Addition::simplify() {
     // the key for simplifying addition expression is simplifying the whole addition chain.
     vector<Expression*> additiveTerms = getAdditiveTerms(); // get all the atoms
@@ -51,6 +59,7 @@ Expression* Addition::simplify() {
         }
         itemsToReturn.push(exp);
     }
+    // build the new simplified addition tree
     while (itemsToReturn.size() > 1) {
         Expression* item1 = itemsToReturn.top();
         itemsToReturn.pop();
@@ -77,13 +86,72 @@ std::string Addition::toString(){
     
     assert(terms.size() > 1); //make sure we have at least 2 terms to print
     
-    for (int i = 0; i < terms.size(); i++) {
-        str << terms[i]->toString();
-        if (i < terms.size() - 1) {
-            str << " + ";
-        }
+    str << terms[0]->toString();
+    for (int i = 1; i < terms.size(); i++) {
+//        Integer* anInt = dynamic_cast<Integer*>(terms[i]);
+//        if (anInt != nullptr) {
+//            if (anInt->isNegative()){
+//                anInt->negate(); // DOESN'T modify the original value since getAdditiveTerms() returns a new instance
+//                str << "-"<< anInt->toString();
+//            }
+//            else
+//                str << "+"<< anInt->toString();
+//        }
+//        else {
+            if (terms[i]->isNegative())
+                str << terms[i]->toString(); // negative representation is taken care of by the term
+            else
+                str << "+" <<terms[i]->toString();
+        //}
+    }
+    for (auto term : terms) {
+        delete term;
     }
     return str.str();
 }
+Expression* Addition::multiplyExpression(Expression* e) {
+    return nullptr;
+}
+Expression* Addition::duplicate() {
+    Addition* duplicateAddition = new Addition(leftSide->duplicate(),rightSide->duplicate());
+    return duplicateAddition;
+}
+bool Addition::isEqual(Expression* e) {
+    bool valueToReturn = true;
+    Addition* thatAddition = dynamic_cast<Addition*>(e);
+    if (thatAddition == nullptr)
+        return false;
+    auto thisAdditiveTerms = this->getAdditiveTerms();
+    auto thatAdditiveTerms = thatAddition->getAdditiveTerms();
 
+    for (auto thisTerm : thisAdditiveTerms) {
+        bool termFound = false;
+        for (auto& thatTerm : thatAdditiveTerms) {
+            if (thatTerm == nullptr)
+                continue;
+            if (thisTerm->isEqual(thatTerm)) {
+                termFound = true;
+                delete thatTerm;
+                thatTerm = nullptr;
+                break;
+            }
+        }
+        if (!termFound){
+            valueToReturn = false;
+            break;
+        }
+    }
+    if (thisAdditiveTerms.size() != thatAdditiveTerms.size())
+        valueToReturn = false;
+    //cleanup
+    for (auto term : thisAdditiveTerms) {
+        delete term;
+    }
+    for (auto term : thatAdditiveTerms) {
+        if (term != nullptr)
+            delete term;
+    }
+    
+    return valueToReturn;
+}
 
