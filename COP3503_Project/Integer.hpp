@@ -9,7 +9,9 @@
 #ifndef Integer_cpp
 #define Integer_cpp
 
+
 #include "Expression.hpp"
+#include "Division.hpp"
 
 class Integer: public Expression{
 private:
@@ -32,7 +34,7 @@ public:
     }
     virtual std::vector<Expression*> getNumeratorFactors(bool breakIntoPrimes) {
         std::vector<Expression*> numFactors;
-        if (value == 1 || 0) {
+        if (value == 1 || value == 0) {
             numFactors.push_back(new Integer(value));
             return numFactors;
         }
@@ -74,12 +76,20 @@ public:
         if ( intExpression != nullptr) {
             return new Integer(this->value + intExpression->getValue());
         }
+        Division* divExpr = dynamic_cast<Division*>(e);
+        if (divExpr != nullptr)
+            return divExpr->addExpression(this->duplicate());
         return nullptr;
     }
     //TODO::
     virtual Expression* multiplyExpression(Expression* e) {
-        Integer* intExpression = dynamic_cast<Integer*>(e);
-        return new Integer(this->value * intExpression->getValue());
+        Integer* intExpr = dynamic_cast<Integer*>(e);
+        if (intExpr != nullptr)
+            return new Integer(this->value * intExpr->getValue());
+//        Division* divExpr = dynamic_cast<Division*>(e);
+//        if (divExpr != nullptr)
+//            return divExpr->multiplyExpression(this->duplicate());
+        return nullptr;
     }
     virtual Expression* duplicate() {
         return new Integer(value);

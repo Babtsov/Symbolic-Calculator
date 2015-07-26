@@ -9,27 +9,39 @@
 #include "Expression.hpp"
 #include "Addition.hpp"
 #include "Multiplication.hpp"
+#include "Division.hpp"
+#include "Integer.hpp"
 #include "tests/DataStructureTests.hpp"
 using namespace std;
 
 Expression* treeBuilder(vector<string> RPNtokens) {
     stack<Expression*> expStack;
     for (string token : RPNtokens) {
-        if ( token == "+" || token == "-") {
+        if (isOperation(token)) {
+            if (expStack.size() < 2) {
+                cout << "Error:: failed to generate Expression tree" << endl;
+                return nullptr;
+            }
             Expression* arg1 = expStack.top();
             expStack.pop();
             Expression* arg2 = expStack.top();
             expStack.pop();
-            if ( token == "-")
-                arg1->negate();
-            expStack.push(new Addition(arg2,arg1));
-        }
-        else if(token == "*") {
-            Expression* arg1 = expStack.top();
-            expStack.pop();
-            Expression* arg2 = expStack.top();
-            expStack.pop();
-            expStack.push(new Multiplication(arg2,arg1));
+            if (token == "+" || token == "-") {
+                if (token == "-")
+                    arg1->negate();
+                expStack.push(new Addition(arg2,arg1));
+            }
+            else if (token == "*") {
+                expStack.push(new Multiplication(arg2,arg1));
+            }
+            else if (token == "/") {
+                Integer* denominatorInt = dynamic_cast<Integer*>(arg1);
+                if (denominatorInt != nullptr && denominatorInt->getValue() == 0) {
+                    cout << "Error:: Division by zero." <<endl;
+                    return nullptr;
+                }
+                expStack.push(new Division(arg2,arg1));
+            }
         }
         else {
             expStack.push(new Integer(stoi(token)));
@@ -56,9 +68,13 @@ int main(int argc, const char * argv[]) {
     }
     cout << endl;
     auto root = treeBuilder(RPN_tokens);
-    cout << "Unsimplified: "<< root->toString() << endl;
-    cout << "Simplified: " << root->simplify()->toString() << endl;
-
+    if (root == nullptr) {
+        exit(EXIT_FAILURE);
+    }
+    cout << "Unsimplified: "<< root->toString() << " = " << root->getDecimalRepresentation() << endl;
+    Expression* simplified = root->simplify();
+    cout << "Simplified: " << simplified->toString() << " = " << simplified->getDecimalRepresentation() << endl;
+    delete simplified;
     delete root;
     return 0;
 }

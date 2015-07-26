@@ -88,21 +88,10 @@ std::string Addition::toString(){
     
     str << terms[0]->toString();
     for (int i = 1; i < terms.size(); i++) {
-//        Integer* anInt = dynamic_cast<Integer*>(terms[i]);
-//        if (anInt != nullptr) {
-//            if (anInt->isNegative()){
-//                anInt->negate(); // DOESN'T modify the original value since getAdditiveTerms() returns a new instance
-//                str << "-"<< anInt->toString();
-//            }
-//            else
-//                str << "+"<< anInt->toString();
-//        }
-//        else {
             if (terms[i]->isNegative())
                 str << terms[i]->toString(); // negative representation is taken care of by the term
             else
                 str << "+" <<terms[i]->toString();
-        //}
     }
     for (auto term : terms) {
         delete term;
@@ -113,8 +102,7 @@ Expression* Addition::multiplyExpression(Expression* e) {
     return nullptr;
 }
 Expression* Addition::duplicate() {
-    Addition* duplicateAddition = new Addition(leftSide->duplicate(),rightSide->duplicate());
-    return duplicateAddition;
+    return new Addition(leftSide->duplicate(),rightSide->duplicate());
 }
 bool Addition::isEqual(Expression* e) {
     bool valueToReturn = true;

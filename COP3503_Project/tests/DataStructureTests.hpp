@@ -13,6 +13,7 @@
 #include "Expression.hpp"
 #include "Addition.hpp"
 #include "Multiplication.hpp"
+#include "Division.hpp"
 using namespace std;
 
 void AdditionIsEqualTest(){
@@ -34,6 +35,33 @@ void AdditionIsEqualTest(){
     //cout << s4->isEqual(q4) << endl;
     
     cout << "End AdditionIsEqualTest" << endl;
+}
+void MultiplicationIsEqualTest() {
+    cout << "Start AdditionIsEqualTest: " << endl;
+    Expression* s1 = new Integer(5);
+    Expression* s2 = new Integer(-2);
+    Expression* s3 = new Addition(s1,s2);
+    Expression* s11 = new Integer(2);
+    Expression* s4 = new Multiplication(s11,s3);
+    
+    Expression* q1 = new Integer(-5);
+    Expression* q2 = new Integer(-2);
+    Expression* q3 = new Addition(q1,q2);
+    Expression* q11 = new Integer(2);
+    Expression* q4 = new Multiplication(q3,q11);
+    
+    cout << q4->isEqual(s4) << endl;
+    //cout << s4->isEqual(q4) << endl;
+    
+    cout << "End AdditionIsEqualTest" << endl;
+}
+void DivisionToStringTest() {
+    cout << "Start DivisionToStringTest: " << endl;
+    Expression* s1 = new Integer(5);
+    Expression* s2 = new Integer(-2);
+    Expression* s3 = new Division(s1,s2);
+    cout << s3->toString() << endl;
+    cout << "End DivisionToStringTest" << endl;
 }
 
 #endif /* DataStructureTests_cpp */
