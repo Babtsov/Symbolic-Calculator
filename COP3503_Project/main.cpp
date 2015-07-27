@@ -47,10 +47,14 @@ Expression* treeBuilder(vector<string> RPNtokens) {
             expStack.push(new Integer(stoi(token)));
         }
     }
+    assert(expStack.size() == 1);
     return expStack.top();
 }
 
 int main(int argc, const char * argv[]) {
+//    MultiplicationIsEqualTest();
+//    DivisionToStringTest();
+//    MultiplicationGetFactorsTest();
     cout << "> ";
     //Collect all the tokens from the user
 //    stringstream cin;

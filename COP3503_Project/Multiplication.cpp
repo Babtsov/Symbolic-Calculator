@@ -7,8 +7,30 @@
 //
 
 #include "Multiplication.hpp"
+#include "Division.hpp"
+#include "Integer.hpp"
 using namespace std;
 
+std::vector<Expression*> Multiplication::getFactors() {
+    vector<Expression*> factors;
+    Multiplication* lsMult = dynamic_cast<Multiplication*>(leftSide);
+    if (lsMult != nullptr) {
+        for (auto term: lsMult->getFactors())
+            factors.push_back(term);
+    }
+    else
+        factors.push_back(leftSide->duplicate());
+    
+    Multiplication* rsMult = dynamic_cast<Multiplication*>(rightSide);
+    if (rsMult != nullptr) {
+        for (auto term: rsMult->getFactors())
+            factors.push_back(term);
+    }
+    else
+        factors.push_back(rightSide->duplicate());
+    
+    return factors;
+}
 Multiplication::Multiplication(Expression* ls,Expression* rs) {
     leftSide = ls;
     rightSide = rs;
@@ -26,7 +48,7 @@ std::vector<Expression*> Multiplication::getNumeratorFactors(bool breakIntoPrime
     }
     return factors;
 }
-std::vector<Expression*> Multiplication::getDenominatorFactors() {
+std::vector<Expression*> Multiplication::getDenominatorFactors(bool breakIntoPrimes) {
     vector<Expression*> factors;
     factors.push_back(new Integer(1));
     return factors;
@@ -37,14 +59,14 @@ std::vector<Expression*> Multiplication::getAdditiveTerms() {
     return terms;
 }
 Expression* Multiplication::simplify() {
-    // the key for simplifying addition expression is simplifying the whole addition chain.
-    vector<Expression*> terms = getNumeratorFactors(true); // get all the atoms
+    // the key for simplifying Mult expression is simplifying the whole multiplication chain.
+    vector<Expression*> terms = getFactors(); // get all the atoms
     vector<Expression*> simplifiedTerms;
-    // make sure we simplify the atoms before trying to add them up
-    for (Expression* exp : terms) {
-        simplifiedTerms.push_back(exp->simplify());
+    // make sure we simplify the atoms before trying to multiply them
+    for (auto term : terms) {
+        simplifiedTerms.push_back(term->simplify());
+        delete term;
     }
-    
     for (int i = 0; i < simplifiedTerms.size() - 1; i++) {
         if (simplifiedTerms[i] == nullptr)
             continue;
@@ -76,24 +98,32 @@ Expression* Multiplication::simplify() {
         itemsToReturn.pop();
         itemsToReturn.push(new Multiplication(item1, item2));
     }
+    assert(itemsToReturn.size() == 1);
     return itemsToReturn.top();
 }
 std::string Multiplication::toString(){
     stringstream str;
-    auto terms = getNumeratorFactors(false);
+    auto terms = getFactors();
     
     assert(terms.size() > 1); //make sure we have at least 2 terms to print
     if (this->isNegative()) { //if the overall expression is negative, print a -
         str << "-";
     }
     for (int i = 0; i < terms.size() - 1; i++) {
-        if (terms[i]->isNegative()) //make sure we print all terms as positive since
-            terms[i]->negate();     //
-        str << "(" << terms[i]->toString() <<")" << "*";
+        if (terms[i]->isNegative()) //make sure we print all terms as positive
+            terms[i]->negate();     // since we took care of the overall negative
+        
+        if (terms[i]->getLeftSide() != nullptr && terms[i]->getRightSide() != nullptr)
+            str << "(" << terms[i]->toString() <<")" << "*"; //means term is some kind of compound expression.
+        else
+            str <<terms[i]->toString() << "*";
     }
     if (terms[terms.size() - 1]->isNegative()) //make sure we print each term
         terms[terms.size() - 1]->negate(); // as a positive since we took care of the overall negative
-    str << "(" << terms[terms.size() - 1]->toString() << ")";
+    if (terms[terms.size() - 1]->getLeftSide() != nullptr && terms[terms.size() - 1]->getRightSide() != nullptr)
+        str << "(" << terms[terms.size() - 1]->toString() <<")"; //means term is some kind of compound expression.
+    else
+        str <<terms[terms.size() - 1]->toString();
     
     for (auto term : terms) {
         delete term;
@@ -106,12 +136,19 @@ Expression* Multiplication::getLeftSide(){
 Expression* Multiplication::getRightSide() {
     return rightSide;
 }
-Expression* Multiplication::addExpression(Expression* e){ //TODO::
-    vector<Expression*> thisFactors = this->getNumeratorFactors(false);
-    vector<Expression*> thatFactors = e->getNumeratorFactors(false);
-    if (thisFactors.size() != thatFactors.size()) {
-        return nullptr;
+//TODO:: addExpression of a multiplication should account for expressions like sqrt(2) + sqrt(2)
+// currently, Multiplication::addExpression supports only the additions of fractions and MULs
+Expression* Multiplication::addExpression(Expression* e){
+    Division* thatDiv = dynamic_cast<Division*>(e);
+    if (thatDiv != nullptr) {
+        return thatDiv->addExpression(this);
     }
+    
+//    vector<Expression*> thisFactors = this->getFactors();
+//    vector<Expression*> thatFactors = e->get;
+//    if (thisFactors.size() != thatFactors.size()) {
+//        return nullptr;
+//    }
 //    for (auto thisFactor : thisFactors) {
 //        if (typeid(*thisFactor) == typeid())
 //    }
@@ -129,7 +166,7 @@ void Multiplication::negate(){
 }
 bool Multiplication::isNegative() {
     int negativeFactors = 0;
-    for (auto term: this->getNumeratorFactors(false)) {
+    for (auto term: this->getFactors()) {
         if (term -> isNegative()) {
             negativeFactors++;
         }
@@ -142,17 +179,28 @@ bool Multiplication::isEqual(Expression* e) {
     Multiplication* thatMultiplication = dynamic_cast<Multiplication*>(e);
     if (thatMultiplication == nullptr)
         return false;
-    auto thisFactors = this->getNumeratorFactors(true); //make sure it separates all the (-1) factors
-    auto thatFactors = thatMultiplication->getNumeratorFactors(true);
+    if (this->isNegative() != thatMultiplication->isNegative())
+        return false;
+    // since they are the same sign, make both of them positive for a valid comparison.
+    if (this->isNegative())
+        this->negate();
+    if (thatMultiplication->isNegative())
+        thatMultiplication->negate();
+    
+    auto thisFactors = this->getFactors();
+    auto thatFactors = thatMultiplication->getFactors();
     
     for (auto thisTerm : thisFactors) {
         if (thisTerm->isNegative()) { //ignore all the negative 1's
-            continue;
+            thisTerm->negate();
         }
         bool termFound = false;
         for (auto& thatTerm : thatFactors) {
-            if (thatTerm == nullptr || thatTerm->isNegative())
+            if (thatTerm == nullptr)
                 continue;
+            if (thatTerm->isNegative())
+                thatTerm->negate();
+            
             if (thisTerm->isEqual(thatTerm)) {
                 termFound = true;
                 delete thatTerm;
@@ -167,8 +215,7 @@ bool Multiplication::isEqual(Expression* e) {
     }
     if (thisFactors.size() != thatFactors.size())
         valueToReturn = false;
-    if (this->isNegative() != thatMultiplication->isNegative())
-        valueToReturn = false;
+
     //cleanup
     for (auto term : thisFactors) {
         delete term;

@@ -23,9 +23,9 @@ public:
     virtual Expression* getLeftSide() = 0;
     virtual Expression* getRightSide() = 0;
     virtual std::vector<Expression*> getNumeratorFactors(bool breakIntoPrimes) = 0;
-    virtual std::vector<Expression*> getDenominatorFactors() = 0;
+    virtual std::vector<Expression*> getDenominatorFactors(bool breakIntoPrimes) = 0;
     virtual std::vector<Expression*> getAdditiveTerms() = 0;
-    virtual Expression* simplify() = 0; 
+    virtual Expression* simplify() = 0;
     virtual Expression* addExpression(Expression* e) = 0;
     virtual Expression* multiplyExpression(Expression* e) = 0;
     virtual Expression* duplicate() = 0;

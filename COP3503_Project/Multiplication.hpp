@@ -10,17 +10,18 @@
 #define Multiplication_cpp
 
 #include "Expression.hpp"
-#include "Integer.cpp"
+
 class Multiplication : public Expression {
 private:
     Expression* leftSide;
     Expression* rightSide;
     
 public:
+    std::vector<Expression*> getFactors();
     Multiplication(Expression* ls,Expression* rs);
     virtual double getDecimalRepresentation();
     virtual std::vector<Expression*> getNumeratorFactors(bool breakIntoPrimes);
-    virtual std::vector<Expression*> getDenominatorFactors();
+    virtual std::vector<Expression*> getDenominatorFactors(bool breakIntoPrimes);
     virtual std::vector<Expression*> getAdditiveTerms();
     virtual Expression* simplify();
     virtual std::string toString();

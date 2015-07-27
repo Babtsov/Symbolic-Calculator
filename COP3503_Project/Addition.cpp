@@ -7,6 +7,7 @@
 //
 
 #include "Addition.hpp"
+#include "Integer.hpp"
 using namespace std;
 
 Addition::Addition(Expression* ls,Expression* rs) {
@@ -16,12 +17,12 @@ Addition::Addition(Expression* ls,Expression* rs) {
 double Addition::getDecimalRepresentation() {
     return leftSide->getDecimalRepresentation() + rightSide->getDecimalRepresentation();
 }
-std::vector<Expression*> Addition::getNumeratorFactors(bool breakIntoPrimes = false) {
+std::vector<Expression*> Addition::getNumeratorFactors(bool breakIntoPrimes) {
     vector<Expression*> factors;
     factors.push_back(this->duplicate());
     return factors;
 }
-std::vector<Expression*> Addition::getDenominatorFactors() {
+std::vector<Expression*> Addition::getDenominatorFactors(bool breakIntoPrimes) {
     vector<Expression*> factors;
     factors.push_back(new Integer(1));
     return factors;
@@ -98,11 +99,38 @@ std::string Addition::toString(){
     }
     return str.str();
 }
+Expression* Addition::getLeftSide() {
+    return leftSide;
+}
+Expression* Addition::getRightSide() {
+    return rightSide;
+}
+Expression* Addition::addExpression(Expression* e){
+    assert(0); //should not be invoked. denotes an internal error in the system
+    return nullptr;
+}
 Expression* Addition::multiplyExpression(Expression* e) {
     return nullptr;
 }
 Expression* Addition::duplicate() {
     return new Addition(leftSide->duplicate(),rightSide->duplicate());
+}
+void Addition::negate(){
+    leftSide->negate();
+    rightSide->negate();
+}
+bool Addition::isNegative() {
+    bool valueToReturn = true;
+    vector<Expression*> AdditiveTerms = getAdditiveTerms();
+    for (auto term : AdditiveTerms) {
+        if (!term->isNegative()) {
+            valueToReturn = false;
+            delete term;
+            break;
+        }
+        delete term;
+    }
+    return valueToReturn;
 }
 bool Addition::isEqual(Expression* e) {
     bool valueToReturn = true;
@@ -141,5 +169,10 @@ bool Addition::isEqual(Expression* e) {
     }
     
     return valueToReturn;
+}
+
+Addition::~Addition(){
+    delete leftSide;
+    delete rightSide;
 }
 

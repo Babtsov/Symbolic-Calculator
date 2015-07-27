@@ -16,13 +16,13 @@ private:
     Expression* leftSide; //numerator
     Expression* rightSide; //denominator
     std::vector<Expression*> combineExpressions(std::vector<Expression*> lhs,std::vector<Expression*> rhs);
-    Expression* factorsToMultExpression(std::vector<Expression*> factors);
+    Expression* factorsToMultExpr(std::vector<Expression*> factors);
     
 public:
     Division(Expression* ls,Expression* rs);
     virtual double getDecimalRepresentation();
     virtual std::vector<Expression*> getNumeratorFactors(bool breakIntoPrimes);
-    virtual std::vector<Expression*> getDenominatorFactors();
+    virtual std::vector<Expression*> getDenominatorFactors(bool breakIntoPrimes);
     virtual std::vector<Expression*> getAdditiveTerms();
     virtual Expression* simplify();
     virtual std::string toString();
