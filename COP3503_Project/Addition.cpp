@@ -33,9 +33,8 @@ Expression* Addition::simplify() {
     vector<Expression*> additiveTerms = getAdditiveTerms(); // get all the atoms
     vector<Expression*> simplifiedTerms;
     // make sure we simplify the atoms before trying to add them up
-    for (Expression* exp : additiveTerms) {
+    for (Expression* exp : additiveTerms)
         simplifiedTerms.push_back(exp->simplify());
-    }
     
     for (int i = 0; i < simplifiedTerms.size() - 1; i++) {
         if (simplifiedTerms[i] == nullptr)
@@ -66,8 +65,11 @@ Expression* Addition::simplify() {
         itemsToReturn.pop();
         Expression* item2 = itemsToReturn.top();
         itemsToReturn.pop();
-        itemsToReturn.push(new Addition(item1, item2));
+        itemsToReturn.push(new Addition(item2, item1));
     }
+    //memory cleanup
+    for (auto term : additiveTerms)
+        delete term;
     return itemsToReturn.top();
 }
 std::vector<Expression*> Addition::getAdditiveTerms() {

@@ -1,25 +1,28 @@
 //
-//  Division.hpp
+//  Exponentiation.hpp
 //  COP3503_Project
 //
-//  Created by Ben on 7/25/15.
+//  Created by Ben on 7/27/15.
 //  Copyright © 2015 Ben. All rights reserved.
 //
 
-#ifndef Division_cpp
-#define Division_cpp
+#ifndef Exponentiation_cpp
+#define Exponentiation_cpp
 
 #include "Expression.hpp"
+#include "Division.hpp"
+#include "Multiplication.hpp"
 
-class Division : public Expression {
+class Exponentiation : public Expression {
 private:
-    Expression* leftSide; //numerator
-    Expression* rightSide; //denominator
-    std::vector<Expression*> combineExpressions(std::vector<Expression*> lhs,std::vector<Expression*> rhs);
-    Expression* factorsToMultExpr(std::vector<Expression*> factors);
+    Expression* leftSide; //base
+    Expression* rightSide; // exponent
+    bool isNeg; //sign to signal if the expression is negative
+    Expression* raiseMult(Multiplication* base, Expression* exponent);
+    Expression* raiseFraction(Division* divBase, Expression* exponent);
     
 public:
-    Division(Expression* ls,Expression* rs);
+    Exponentiation(Expression* ls,Expression* rs);
     virtual double getDecimalRepresentation();
     virtual std::vector<Expression*> getNumeratorFactors(bool breakIntoPrimes);
     virtual std::vector<Expression*> getDenominatorFactors(bool breakIntoPrimes);
@@ -34,7 +37,6 @@ public:
     virtual void negate();
     virtual bool isNegative();
     virtual bool isEqual(Expression* e);
-    virtual ~Division();
+    virtual ~Exponentiation();
 };
-
-#endif /* Division_cpp */
+#endif /* Exponentiation_cpp */

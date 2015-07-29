@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		B506C1821B64517D00445B84 /* Division.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B506C1801B64517D00445B84 /* Division.cpp */; };
 		B53BE1E91B49EB0600263F6D /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B53BE1E81B49EB0600263F6D /* main.cpp */; };
+		B5A4646A1B661323005E7100 /* Exponentiation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B5A464681B661323005E7100 /* Exponentiation.cpp */; };
 		B5A69E521B5DF764007F1E4E /* Tokenizer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B5A69E501B5DF764007F1E4E /* Tokenizer.cpp */; };
 		B5A69E581B5DFD35007F1E4E /* Addition.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B5A69E561B5DFD35007F1E4E /* Addition.cpp */; };
 		B5A69E5B1B60C564007F1E4E /* Multiplication.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B5A69E591B60C564007F1E4E /* Multiplication.cpp */; };
@@ -32,6 +33,8 @@
 		B506C1811B64517D00445B84 /* Division.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Division.hpp; sourceTree = "<group>"; };
 		B53BE1E51B49EB0600263F6D /* COP3503_Project */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = COP3503_Project; sourceTree = BUILT_PRODUCTS_DIR; };
 		B53BE1E81B49EB0600263F6D /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		B5A464681B661323005E7100 /* Exponentiation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Exponentiation.cpp; sourceTree = "<group>"; };
+		B5A464691B661323005E7100 /* Exponentiation.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Exponentiation.hpp; sourceTree = "<group>"; };
 		B5A69E501B5DF764007F1E4E /* Tokenizer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Tokenizer.cpp; sourceTree = "<group>"; };
 		B5A69E511B5DF764007F1E4E /* Tokenizer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Tokenizer.hpp; sourceTree = "<group>"; };
 		B5A69E541B5DF8C8007F1E4E /* Expression.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Expression.hpp; sourceTree = "<group>"; };
@@ -77,6 +80,8 @@
 				B53BE1E81B49EB0600263F6D /* main.cpp */,
 				B5A69E561B5DFD35007F1E4E /* Addition.cpp */,
 				B5A69E571B5DFD35007F1E4E /* Addition.hpp */,
+				B5A464681B661323005E7100 /* Exponentiation.cpp */,
+				B5A464691B661323005E7100 /* Exponentiation.hpp */,
 				B5A69E591B60C564007F1E4E /* Multiplication.cpp */,
 				B5A69E5A1B60C564007F1E4E /* Multiplication.hpp */,
 				B506C1801B64517D00445B84 /* Division.cpp */,
@@ -160,6 +165,7 @@
 				B5A69E581B5DFD35007F1E4E /* Addition.cpp in Sources */,
 				B5A69E5E1B620887007F1E4E /* Integer.cpp in Sources */,
 				B506C1821B64517D00445B84 /* Division.cpp in Sources */,
+				B5A4646A1B661323005E7100 /* Exponentiation.cpp in Sources */,
 				B5A69E521B5DF764007F1E4E /* Tokenizer.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

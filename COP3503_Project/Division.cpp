@@ -10,6 +10,8 @@
 #include "Integer.hpp"
 #include "Addition.hpp"
 #include "Multiplication.hpp"
+#include <exception>
+#include <iostream>
 using namespace std;
 
 vector<Expression*> Division::combineExpressions(vector<Expression*> lhs,vector<Expression*> rhs) {
@@ -45,6 +47,12 @@ Expression* Division::factorsToMultExpr(std::vector<Expression*> factors) {
 }
 
 Division::Division(Expression* ls,Expression* rs){
+    double denomValue = rs->getDecimalRepresentation();
+    if (abs(denomValue) < 5e-10) {
+        std::cerr << "Error:: the following faction: ";
+        std::cerr << "(" << ls->toString() << ")/(" << rs->toString() <<")" << endl;
+        std::cerr << "has a zero as a denominator: " << rs->toString() << endl;
+    }
     leftSide = ls; //numerator
     rightSide = rs; //denominator
 }
@@ -62,7 +70,6 @@ std::vector<Expression*> Division::getAdditiveTerms() {
     terms.push_back(this->duplicate());
     return terms;
 }
-// TODO:: check for division by zero
 Expression* Division::simplify() {
     Expression* simplifiedNumerator = leftSide->simplify();
     Expression* simplifiedDenominator = rightSide->simplify();

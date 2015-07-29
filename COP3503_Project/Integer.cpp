@@ -8,6 +8,7 @@
 
 #include "Integer.hpp"
 #include "Division.hpp"
+#include "Exponentiation.hpp"
 
 Integer::Integer(int val){
     value = val;
@@ -63,6 +64,8 @@ Expression* Integer::simplify() {
     return new Integer(value);
 }
 Expression* Integer::addExpression(Expression* e) {
+    if (getValue() == 0)
+        return e->duplicate();
     Integer* intExpression = dynamic_cast<Integer*>(e);
     if ( intExpression != nullptr) {
         return new Integer(this->value + intExpression->getValue());
@@ -74,13 +77,22 @@ Expression* Integer::addExpression(Expression* e) {
 }
 
 Expression* Integer::multiplyExpression(Expression* e) {
+    if (getValue() == 0)
+        return new Integer(0);
+    if (getValue() == 1)
+        return e->duplicate();
+    if (getValue() == -1) {
+        Expression* dupExpr = e->duplicate();
+        dupExpr->negate();
+        return dupExpr;
+    }
     Integer* intExpr = dynamic_cast<Integer*>(e);
     if (intExpr != nullptr)
         return new Integer(this->value * intExpr->getValue());
-    Division* intDiv = dynamic_cast<Division*>(e);
-    if (intDiv != nullptr)
-        return intDiv->multiplyExpression(this);
-
+    Division* divExpr = dynamic_cast<Division*>(e);
+    if (divExpr != nullptr)
+        return divExpr->multiplyExpression(this);
+    
     return nullptr;
 }
 Expression* Integer::duplicate() {

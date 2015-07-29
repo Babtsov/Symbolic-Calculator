@@ -90,7 +90,7 @@ Expression* Multiplication::simplify() {
         }
         itemsToReturn.push(exp);
     }
-    // build the new simplified addition tree
+    // build the new simplified multiplication tree
     while (itemsToReturn.size() > 1) {
         Expression* item1 = itemsToReturn.top();
         itemsToReturn.pop();
@@ -136,12 +136,16 @@ Expression* Multiplication::getLeftSide(){
 Expression* Multiplication::getRightSide() {
     return rightSide;
 }
-//TODO:: addExpression of a multiplication should account for expressions like sqrt(2) + sqrt(2)
+//TODO:: addExpression of a multiplication should account for expressions like 2*sqrt(2) + 3*sqrt(2)
 // currently, Multiplication::addExpression supports only the additions of fractions and MULs
 Expression* Multiplication::addExpression(Expression* e){
-    Division* thatDiv = dynamic_cast<Division*>(e);
-    if (thatDiv != nullptr) {
-        return thatDiv->addExpression(this);
+    Division* divExpr = dynamic_cast<Division*>(e);
+    if (divExpr != nullptr) {
+        return divExpr->addExpression(this);
+    }
+    Division* intExpr = dynamic_cast<Division*>(e);
+    if (intExpr != nullptr) {
+        return intExpr->addExpression(this);
     }
     
 //    vector<Expression*> thisFactors = this->getFactors();
@@ -167,9 +171,8 @@ void Multiplication::negate(){
 bool Multiplication::isNegative() {
     int negativeFactors = 0;
     for (auto term: this->getFactors()) {
-        if (term -> isNegative()) {
+        if (term -> isNegative())
             negativeFactors++;
-        }
         delete term;
     }
     return negativeFactors % 2 != 0;
@@ -191,9 +194,8 @@ bool Multiplication::isEqual(Expression* e) {
     auto thatFactors = thatMultiplication->getFactors();
     
     for (auto thisTerm : thisFactors) {
-        if (thisTerm->isNegative()) { //ignore all the negative 1's
+        if (thisTerm->isNegative()) //ignore all the negative 1's
             thisTerm->negate();
-        }
         bool termFound = false;
         for (auto& thatTerm : thatFactors) {
             if (thatTerm == nullptr)
@@ -217,9 +219,8 @@ bool Multiplication::isEqual(Expression* e) {
         valueToReturn = false;
 
     //cleanup
-    for (auto term : thisFactors) {
+    for (auto term : thisFactors)
         delete term;
-    }
     for (auto term : thatFactors) {
         if (term != nullptr)
             delete term;
