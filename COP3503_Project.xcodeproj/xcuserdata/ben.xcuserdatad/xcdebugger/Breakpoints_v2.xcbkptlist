@@ -89,22 +89,6 @@
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "COP3503_Project/Multiplication.cpp"
-            timestampString = "459859689.429917"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "130"
-            endingLineNumber = "130"
-            landmarkName = "Multiplication::simplify()"
-            landmarkType = "5">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
             filePath = "COP3503_Project/tests/DataStructureTests.hpp"
             timestampString = "459566383.020139"
             startingColumnNumber = "9223372036854775807"
@@ -378,11 +362,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "COP3503_Project/Multiplication.cpp"
-            timestampString = "459859689.429917"
+            timestampString = "459962249.218504"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "99"
-            endingLineNumber = "99"
+            startingLineNumber = "156"
+            endingLineNumber = "156"
             landmarkName = "Multiplication::simplify()"
             landmarkType = "5">
          </BreakpointContent>
@@ -522,27 +506,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "COP3503_Project/Multiplication.cpp"
-            timestampString = "459892361.169109"
+            timestampString = "459962249.218504"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "101"
-            endingLineNumber = "101"
-            landmarkName = "Multiplication::simplify()"
-            landmarkType = "5">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "COP3503_Project/Multiplication.cpp"
-            timestampString = "459892718.42318"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "133"
-            endingLineNumber = "133"
+            startingLineNumber = "161"
+            endingLineNumber = "161"
             landmarkName = "Multiplication::simplify()"
             landmarkType = "5">
          </BreakpointContent>
@@ -560,6 +528,22 @@
             startingLineNumber = "78"
             endingLineNumber = "78"
             landmarkName = "Exponentiation::simplifyRoot(Expression* base,Integer* expoNum,Integer* expoDenom)"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "COP3503_Project/Exponentiation.cpp"
+            timestampString = "459965122.867646"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "230"
+            endingLineNumber = "230"
+            landmarkName = "Exponentiation::addExpression(Expression* e)"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>

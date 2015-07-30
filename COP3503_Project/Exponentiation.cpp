@@ -198,7 +198,7 @@ Expression* Exponentiation::getRightSide() {
     return rightSide;
 }
 Expression* Exponentiation::addExpression(Expression* e) {
-    // handle cases like sqrt(2) + sqrt(2)
+    // handle cases like 2^(1/2)+2^(1/2)
     Exponentiation* expoExpr = dynamic_cast<Exponentiation*>(e);
     if (expoExpr != nullptr) {
         // first, get rid of sign to make a valid comparison (using duplicate objects)
@@ -226,7 +226,12 @@ Expression* Exponentiation::addExpression(Expression* e) {
             return new Integer(0);
         }
     }
-    // handle addition  handle cases like sqrt(2) + 0
+    // handle cases like 2^(1/2)+3*2^(1/2)
+    Multiplication* multExpr = dynamic_cast<Multiplication*>(e);
+    if (multExpr != nullptr) {
+        return multExpr->addExpression(this);
+    }
+    // handle addition  handle cases like 2^(1/2) + 0
     Integer* intExpr = dynamic_cast<Integer*>(e);
     if (intExpr != nullptr)
         return intExpr->addExpression(this);
@@ -246,6 +251,7 @@ Expression* Exponentiation::multiplyExpression(Expression* e) {
         delete combinedExpr;
         return simpleCombinedExpr;
     }
+
     //handle multiplication by 1, -1, and 0
     Integer* intExpr = dynamic_cast<Integer*>(e);
     if (intExpr != nullptr)

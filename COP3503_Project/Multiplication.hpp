@@ -10,12 +10,16 @@
 #define Multiplication_cpp
 
 #include "Expression.hpp"
+#include "Integer.hpp"
+#include <utility>
 
 class Multiplication : public Expression {
 private:
     Expression* leftSide;
     Expression* rightSide;
-    std::vector<Expression*> getUnsimplifiedFactors(); //used for printing
+    std::pair< Integer*, std::vector<Expression*> > splitCoefAndFactors(Multiplication* mult);
+    Expression* factorsToMultExpr(std::vector<Expression*> factors);
+    std::vector<Expression*> getUnsimplifiedFactors(); 
     
 public:
     std::vector<Expression*> getFactors();

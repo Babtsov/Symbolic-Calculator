@@ -7,10 +7,67 @@
 //
 
 #include "Multiplication.hpp"
+#include "Exponentiation.hpp"
 #include "Division.hpp"
 #include "Integer.hpp"
 using namespace std;
 
+std::pair< Integer*, std::vector<Expression*> > Multiplication::splitCoefAndFactors(Multiplication* lhs) {
+    pair< Integer*, std::vector<Expression*> >  coefFactorsPair;
+    Integer* Coefficient = nullptr;
+    vector<Expression*> multFactors = lhs->getUnsimplifiedFactors();
+    //transfer all the integer factor
+    for (auto& factor : multFactors) {
+        Integer* intFactor = dynamic_cast<Integer*>(factor);
+        if (intFactor != nullptr && Coefficient == nullptr) {
+            Coefficient = dynamic_cast<Integer*>(intFactor->duplicate());
+            delete factor;
+            factor = nullptr;
+        }
+        else if (intFactor != nullptr && Coefficient != nullptr) {
+            assert(0); // we should not have gotten more than 1 int factor per MultExpr
+            coefFactorsPair.first = nullptr;
+            coefFactorsPair.second = multFactors;
+            return coefFactorsPair;
+        }
+    }
+    if (Coefficient == nullptr)
+        Coefficient = new Integer(1);
+    // filter all the nulls and convert all the factors to positive.
+    vector<Expression*> readyFactors; //factors ready for comparison.
+    for (auto factor: multFactors){
+        if (factor == nullptr)
+            continue;
+        if (factor->isNegative()) {
+            factor->negate();
+            readyFactors.push_back(factor);
+        }
+        else
+            readyFactors.push_back(factor);
+    }
+    coefFactorsPair.first = Coefficient;
+    coefFactorsPair.second = readyFactors;
+    return coefFactorsPair;
+}
+Expression* Multiplication::factorsToMultExpr(std::vector<Expression*> factors) {
+    stack<Expression*> itemsToReturn;
+    if (factors.empty()) {
+        assert(0);
+    }
+    for (auto factor : factors) {
+        if (factor == nullptr)
+            assert(0);
+        itemsToReturn.push(factor);
+    }
+    while (itemsToReturn.size() > 1) {
+        Expression* item1 = itemsToReturn.top();
+        itemsToReturn.pop();
+        Expression* item2 = itemsToReturn.top();
+        itemsToReturn.pop();
+        itemsToReturn.push(new Multiplication(item2, item1));
+    }
+    return itemsToReturn.top();
+}
 std::vector<Expression*> Multiplication::getUnsimplifiedFactors() {
     vector<Expression*> factors;
     Multiplication* lsMult = dynamic_cast<Multiplication*>(leftSide);
@@ -98,21 +155,34 @@ Expression* Multiplication::simplify() {
     // the key for simplifying Mult expression is simplifying the whole multiplication chain.
     vector<Expression*> simplifiedTerms = getFactors(); // get all the atoms
 
-    for (int i = 0; i < simplifiedTerms.size() - 1; i++) {
-        if (simplifiedTerms[i] == nullptr)
-            continue;
-        for (int j = i + 1; j < simplifiedTerms.size(); j++) {
-            if (simplifiedTerms[j] == nullptr)
+    bool combOccured; //a flag to test if a combination occured. if no combination occured at all, we are done multiplying
+    do {
+        combOccured = false;
+        for (int i = 0; i < simplifiedTerms.size() - 1; i++) {
+            if (simplifiedTerms[i] == nullptr)
                 continue;
-            Expression* product = simplifiedTerms[i]->multiplyExpression(simplifiedTerms[j]);
-            if (product != nullptr) {
-                delete simplifiedTerms[i];
-                delete simplifiedTerms[j];
-                simplifiedTerms[i] = product;
-                simplifiedTerms[j] = nullptr;
+            for (int j = i + 1; j < simplifiedTerms.size(); j++) {
+                if (simplifiedTerms[j] == nullptr || simplifiedTerms[i] == nullptr)
+                    continue;
+                Expression* product = simplifiedTerms[i]->multiplyExpression(simplifiedTerms[j]);
+                Multiplication* productAsMult = dynamic_cast<Multiplication*>(product);
+                if (product != nullptr) {
+                    delete simplifiedTerms[i];
+                    delete simplifiedTerms[j];
+                    simplifiedTerms[i] = nullptr;
+                    simplifiedTerms[j] = nullptr;
+                    combOccured = true;
+                }
+                if (product != nullptr && productAsMult == nullptr)
+                    simplifiedTerms.push_back(product);
+                else if(product != nullptr && productAsMult != nullptr) {
+                    simplifiedTerms.push_back(productAsMult->getLeftSide()->duplicate());
+                    simplifiedTerms.push_back(productAsMult->getRightSide()->duplicate());
+                    delete productAsMult;
+                }
             }
         }
-    }
+    } while(combOccured);
     // clean up the array of simplified terms from null pointers
     stack<Expression*> itemsToReturn;
     for (Expression* exp : simplifiedTerms) {
@@ -156,9 +226,9 @@ std::string Multiplication::toString(){
     else
         str <<terms[terms.size() - 1]->toString();
     
-    for (auto term : terms) {
+    for (auto term : terms)
         delete term;
-    }
+
     return str.str();
 }
 Expression* Multiplication::getLeftSide(){
@@ -167,26 +237,49 @@ Expression* Multiplication::getLeftSide(){
 Expression* Multiplication::getRightSide() {
     return rightSide;
 }
-//TODO:: addExpression of a multiplication should account for expressions like 2*sqrt(2) + 3*sqrt(2)
-// currently, Multiplication::addExpression supports only the additions of fractions and MULs
+
 Expression* Multiplication::addExpression(Expression* e){
     Division* divExpr = dynamic_cast<Division*>(e);
     if (divExpr != nullptr) {
         return divExpr->addExpression(this);
     }
-    Division* intExpr = dynamic_cast<Division*>(e);
-    if (intExpr != nullptr) {
-        return intExpr->addExpression(this);
+    Multiplication* multExpr = dynamic_cast<Multiplication*>(e);
+    Exponentiation* expoExpr = dynamic_cast<Exponentiation*>(e);
+    if (multExpr != nullptr || expoExpr != nullptr) {
+        pair< Integer*, std::vector<Expression*> > thatCoefAndFactors;
+        if (expoExpr != nullptr) {
+            auto expoToMult = new Multiplication(new Integer(1),expoExpr);
+            thatCoefAndFactors = splitCoefAndFactors(expoToMult);
+        }
+        else
+            thatCoefAndFactors = splitCoefAndFactors(multExpr);
+
+        vector<Expression*> thatFactors =thatCoefAndFactors.second;
+        Integer* thatCoef = thatCoefAndFactors.first;
+        
+        auto thisCoefAndFactors = splitCoefAndFactors(this);
+        Integer* thisCoef = thisCoefAndFactors.first;
+        vector<Expression*> thisFactors =thisCoefAndFactors.second;
+        
+        
+        if (thisCoef == nullptr || thatCoef == nullptr)
+            return nullptr;
+        if (thisFactors.size() != thatFactors.size())
+            return nullptr;
+        //perform term by term comparison to make sure we can add the two terms
+        for (int i = 0; i < thisFactors.size(); i++) {
+            if (!thisFactors[i]->isEqual(thatFactors[i]))
+                return nullptr;
+        }
+        // at this point, we guaretee that all the factors are equal, so add integers
+        Integer* coefSum = new Integer(thisCoef->getValue() + thatCoef->getValue());
+        delete thisCoef;
+        delete thatCoef;
+        for (auto factor : thatFactors)
+            delete factor;
+        
+        return new Multiplication(coefSum,factorsToMultExpr(thisFactors));
     }
-    
-//    vector<Expression*> thisFactors = this->getFactors();
-//    vector<Expression*> thatFactors = e->get;
-//    if (thisFactors.size() != thatFactors.size()) {
-//        return nullptr;
-//    }
-//    for (auto thisFactor : thisFactors) {
-//        if (typeid(*thisFactor) == typeid())
-//    }
     return nullptr;
 }
 Expression* Multiplication::multiplyExpression(Expression* e) {
@@ -221,8 +314,8 @@ bool Multiplication::isEqual(Expression* e) {
     if (thatMultiplication->isNegative())
         thatMultiplication->negate();
     
-    auto thisFactors = this->getFactors();
-    auto thatFactors = thatMultiplication->getFactors();
+    auto thisFactors = this->getUnsimplifiedFactors();
+    auto thatFactors = thatMultiplication->getUnsimplifiedFactors();
     
     for (auto thisTerm : thisFactors) {
         if (thisTerm->isNegative()) //ignore all the negative 1's
@@ -248,7 +341,6 @@ bool Multiplication::isEqual(Expression* e) {
     }
     if (thisFactors.size() != thatFactors.size())
         valueToReturn = false;
-
     //cleanup
     for (auto term : thisFactors)
         delete term;
