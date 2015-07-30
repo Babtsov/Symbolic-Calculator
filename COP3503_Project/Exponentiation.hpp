@@ -11,6 +11,7 @@
 
 #include "Expression.hpp"
 #include "Division.hpp"
+#include "Integer.hpp"
 #include "Multiplication.hpp"
 
 class Exponentiation : public Expression {
@@ -20,6 +21,7 @@ private:
     bool isNeg; //sign to signal if the expression is negative
     Expression* raiseMult(Multiplication* base, Expression* exponent);
     Expression* raiseFraction(Division* divBase, Expression* exponent);
+    Expression* simplifyRoot(Expression* base,Integer* expoNum,Integer* expoDenom);
     
 public:
     Exponentiation(Expression* ls,Expression* rs);

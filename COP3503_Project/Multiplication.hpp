@@ -15,6 +15,7 @@ class Multiplication : public Expression {
 private:
     Expression* leftSide;
     Expression* rightSide;
+    std::vector<Expression*> getUnsimplifiedFactors(); //used for printing
     
 public:
     std::vector<Expression*> getFactors();

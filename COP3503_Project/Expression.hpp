@@ -33,7 +33,7 @@ public:
     virtual bool isNegative() = 0;
     virtual bool isEqual(Expression* e) = 0;
     virtual std::string toString() = 0;
-    virtual ~Expression() {};
+    virtual ~Expression() {}
 };
 
 #endif /* Expression_cpp */

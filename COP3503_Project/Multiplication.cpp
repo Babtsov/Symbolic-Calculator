@@ -11,6 +11,25 @@
 #include "Integer.hpp"
 using namespace std;
 
+std::vector<Expression*> Multiplication::getUnsimplifiedFactors() {
+    vector<Expression*> factors;
+    Multiplication* lsMult = dynamic_cast<Multiplication*>(leftSide);
+    if (lsMult != nullptr) {
+        for (auto term: lsMult->getUnsimplifiedFactors())
+            factors.push_back(term);
+    }
+    else
+        factors.push_back(leftSide->duplicate());
+    Multiplication* rsMult = dynamic_cast<Multiplication*>(rightSide);
+    if (rsMult != nullptr) {
+        for (auto term: rsMult->getUnsimplifiedFactors())
+            factors.push_back(term);
+    }
+    else
+        factors.push_back(rightSide->duplicate());
+    return factors;
+}
+
 std::vector<Expression*> Multiplication::getFactors() {
     vector<Expression*> factors;
     Multiplication* lsMult = dynamic_cast<Multiplication*>(leftSide);
@@ -18,16 +37,33 @@ std::vector<Expression*> Multiplication::getFactors() {
         for (auto term: lsMult->getFactors())
             factors.push_back(term);
     }
-    else
-        factors.push_back(leftSide->duplicate());
+    else {
+        Expression* lsSimplified = leftSide->simplify();
+        Multiplication* lsSimplifiedMult = dynamic_cast<Multiplication*>(lsSimplified);
+        if (lsSimplifiedMult != nullptr) {
+            for (auto term: lsSimplifiedMult->getFactors())
+                factors.push_back(term);
+        }
+        else
+            factors.push_back(lsSimplified);
+    }
     
     Multiplication* rsMult = dynamic_cast<Multiplication*>(rightSide);
     if (rsMult != nullptr) {
         for (auto term: rsMult->getFactors())
             factors.push_back(term);
     }
-    else
-        factors.push_back(rightSide->duplicate());
+    else {
+        Expression* rsSimplified = rightSide->simplify();
+        Multiplication* rsSimplifiedMult = dynamic_cast<Multiplication*>(rsSimplified);
+        if (rsSimplifiedMult != nullptr) {
+            for (auto term: rsSimplifiedMult->getFactors())
+                factors.push_back(term);
+        }
+        else
+            factors.push_back(rsSimplified);
+    }
+        //factors.push_back(rightSide->duplicate());
     
     return factors;
 }
@@ -60,13 +96,8 @@ std::vector<Expression*> Multiplication::getAdditiveTerms() {
 }
 Expression* Multiplication::simplify() {
     // the key for simplifying Mult expression is simplifying the whole multiplication chain.
-    vector<Expression*> terms = getFactors(); // get all the atoms
-    vector<Expression*> simplifiedTerms;
-    // make sure we simplify the atoms before trying to multiply them
-    for (auto term : terms) {
-        simplifiedTerms.push_back(term->simplify());
-        delete term;
-    }
+    vector<Expression*> simplifiedTerms = getFactors(); // get all the atoms
+
     for (int i = 0; i < simplifiedTerms.size() - 1; i++) {
         if (simplifiedTerms[i] == nullptr)
             continue;
@@ -103,7 +134,7 @@ Expression* Multiplication::simplify() {
 }
 std::string Multiplication::toString(){
     stringstream str;
-    auto terms = getFactors();
+    auto terms = getUnsimplifiedFactors();
     
     assert(terms.size() > 1); //make sure we have at least 2 terms to print
     if (this->isNegative()) { //if the overall expression is negative, print a -
@@ -170,7 +201,7 @@ void Multiplication::negate(){
 }
 bool Multiplication::isNegative() {
     int negativeFactors = 0;
-    for (auto term: this->getFactors()) {
+    for (auto term: this->getUnsimplifiedFactors()) {
         if (term -> isNegative())
             negativeFactors++;
         delete term;

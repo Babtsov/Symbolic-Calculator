@@ -74,9 +74,59 @@ Expression* Exponentiation::raiseFraction(Division* divBase, Expression* exponen
     delete constructedDiv;
     return simplifiedDiv;
 }
+Expression* Exponentiation::simplifyRoot(Expression* base,Integer* expoNum,Integer* expoDenom) {
+    Integer* intBase = dynamic_cast<Integer*>(base);
+    if ( expoNum->getValue() >= expoDenom->getValue()) {
+        int factoredExpo = expoNum->getValue() / expoDenom->getValue();
+        int remainingExpo = expoNum->getValue() % expoDenom->getValue();
+        auto factoredExpoExpr = new Exponentiation(base->duplicate(),new Integer(factoredExpo));
+        if ( remainingExpo == 0)
+            return factoredExpoExpr;
+        auto remainExpoExpr = new Exponentiation(base->duplicate(),new Division(new Integer(remainingExpo),expoDenom->duplicate()));
+        auto combinedExpr = new Multiplication(remainExpoExpr,factoredExpoExpr);
+        auto combinedExprSimplified = combinedExpr->simplify();
+        delete combinedExpr;
+        return combinedExprSimplified;
+    }
+    else if (intBase != nullptr) {
+        if (intBase->getValue() == 1 || intBase->getValue() == 0)
+            return new Integer(intBase->getValue());
+        vector<Expression*> primes = intBase->getNumeratorFactors(true);
+        if (primes.size() == 1)
+            return this->duplicate();
+        stack<Expression*> multStack;
+        for (auto term : primes) {
+            Expression* unsimiplfied = new Exponentiation(term->duplicate(),rightSide->duplicate());
+            multStack.push(unsimiplfied->simplify());
+            delete unsimiplfied;
+        }
+        while (multStack.size() > 1) {
+            Expression* item1 = multStack.top();
+            multStack.pop();
+            Expression* item2 = multStack.top();
+            multStack.pop();
+            multStack.push(new Multiplication(item1, item2));
+        }
+        Expression* combined = multStack.top();
+        Expression* simplified = combined->simplify();
+        delete combined;
+        return simplified;
+    }
+    return this->duplicate();
+}
 Expression* Exponentiation::simplify() {
     Expression* base = leftSide->simplify();
     Expression* exponent = rightSide->simplify();
+    // take care of negative exponents 3^(-2) =1/(3^2), notice that preserving the original simplified base and expo
+    if (exponent->isNegative()) {
+        Integer* newNum = new Integer(1);
+        exponent->negate();
+        Exponentiation* newDenom = new Exponentiation(base,exponent);
+        Expression* combinedExpr = new Division(newNum,newDenom);
+        Expression* combinedExprSimplified = combinedExpr->simplify();
+        delete combinedExpr;
+        return combinedExprSimplified;
+    }
     // takes care of when the base is fraction. (3/7)^2 = (3^2)/(7^2)
     Division* divBase = dynamic_cast<Division*>(base);
     if (divBase != nullptr) {
@@ -94,13 +144,7 @@ Expression* Exponentiation::simplify() {
         delete exponent;
         return simplifiedInt;
     }
-    // take care of negative exponents 3^(-2) =1/(3^2), notice that preserving the original simplified base and expo
-    if (exponent->isNegative()) {
-        Integer* newNum = new Integer(1);
-        exponent->negate();
-        Exponentiation* newDenom = new Exponentiation(base,exponent);
-        return new Division(newNum,newDenom);
-    }
+
     // takes care of when the base is composed of multiplication expression. (2*pi)^2 = 2^2*pi^2
     Multiplication* multBase = dynamic_cast<Multiplication*>(base);
     if (multBase != nullptr) {
@@ -112,13 +156,20 @@ Expression* Exponentiation::simplify() {
     // takes care when the exponent is a fraction 2^(1/3)
     Division* divExpo = dynamic_cast<Division*>(exponent);
     if (divExpo != nullptr) {
+        Integer* expoNum =  dynamic_cast<Integer*>(divExpo->getLeftSide());
+        Integer* expoDenom =  dynamic_cast<Integer*>(divExpo->getRightSide());
+        if (expoNum == nullptr || expoDenom == nullptr) {
+            std::cerr << "Error:: the following expression: ";
+            std::cerr << this->toString() << endl;
+            std::cerr << "has an unsupported exponent: " << rightSide->toString() << endl;
+        }
         
-//        if (typeid(*divExpo->getLeftSide()) != typeid(Integer) || typeid(*divExpo->getRightSide()) != typeid(Integer)) {
-//            std::cerr << "Error:: the following expression: ";
-//            std::cerr << this->toString() << endl;
-//            std::cerr << "has an unsupported exponent: " << rightSide->toString() << endl;
-//        }
+        Expression* simplifiedRootExpr = simplifyRoot(leftSide,expoNum,expoDenom);
+        delete base;
+        delete exponent;
+        return simplifiedRootExpr;
     }
+    
     Expression* defaultSimplified = new Exponentiation(base,exponent);
     if (this->isNegative())
         defaultSimplified->negate();
