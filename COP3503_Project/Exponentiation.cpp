@@ -28,7 +28,7 @@ double Exponentiation::getDecimalRepresentation() {
 
 std::vector<Expression*> Exponentiation::getNumeratorFactors(bool breakIntoPrimes) {
     vector<Expression*> factors;    
-    factors.push_back(new Exponentiation(leftSide->duplicate(),rightSide->duplicate()));
+    factors.push_back(this->duplicate());
     return factors;
 }
 std::vector<Expression*> Exponentiation::getDenominatorFactors(bool breakIntoPrimes) {

@@ -169,7 +169,6 @@ bool Addition::isEqual(Expression* e) {
         if (term != nullptr)
             delete term;
     }
-    
     return valueToReturn;
 }
 
