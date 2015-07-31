@@ -92,11 +92,14 @@ Expression* Exponentiation::simplifyRoot(Expression* base,Integer* expoNum,Integ
         if (intBase->getValue() == 1 || intBase->getValue() == 0)
             return new Integer(intBase->getValue());
         vector<Expression*> primes = intBase->getNumeratorFactors(true);
-        if (primes.size() == 1)
-            return this->duplicate();
+        if (primes.size() == 1) {
+            Division* exponent = new Division(expoNum->duplicate(),expoDenom->duplicate());
+            return new Exponentiation(base->duplicate(),exponent);
+        }
         stack<Expression*> multStack;
         for (auto term : primes) {
-            Expression* unsimiplfied = new Exponentiation(term->duplicate(),rightSide->duplicate());
+            Division* exponent = new Division(expoNum->duplicate(),expoDenom->duplicate());
+            Expression* unsimiplfied = new Exponentiation(term->duplicate(),exponent);
             multStack.push(unsimiplfied->simplify());
             delete unsimiplfied;
         }
@@ -135,7 +138,7 @@ Expression* Exponentiation::simplify() {
         delete exponent;
         return simplifiedDivRaised;
     }
-    // takes care when both the base and exponent are integers. 2^3
+    // takes care when both the base and exponent are integers. 2^3 = 8
     Integer* intBase = dynamic_cast<Integer*>(base);
     Integer* intExpo = dynamic_cast<Integer*>(exponent);
     if (intBase != nullptr && intExpo != nullptr) {
@@ -145,7 +148,7 @@ Expression* Exponentiation::simplify() {
         return simplifiedInt;
     }
 
-    // takes care of when the base is composed of multiplication expression. (2*pi)^2 = 2^2*pi^2
+    // takes care of when the base is a multiplication expression. (2*pi)^2 = 2^2*pi^2
     Multiplication* multBase = dynamic_cast<Multiplication*>(base);
     if (multBase != nullptr) {
         Expression* simplifiedMultRaised = raiseMult(multBase, exponent);
@@ -153,7 +156,7 @@ Expression* Exponentiation::simplify() {
         delete exponent;
         return simplifiedMultRaised;
     }
-    // takes care when the exponent is a fraction 2^(1/3)
+    // takes care when the exponent is a fraction 8^(1/2) = 2^1*2^(1/2)
     Division* divExpo = dynamic_cast<Division*>(exponent);
     if (divExpo != nullptr) {
         Integer* expoNum =  dynamic_cast<Integer*>(divExpo->getLeftSide());
@@ -164,7 +167,7 @@ Expression* Exponentiation::simplify() {
             std::cerr << "has an unsupported exponent: " << rightSide->toString() << endl;
         }
         
-        Expression* simplifiedRootExpr = simplifyRoot(leftSide,expoNum,expoDenom);
+        Expression* simplifiedRootExpr = simplifyRoot(base,expoNum,expoDenom);
         delete base;
         delete exponent;
         return simplifiedRootExpr;
@@ -231,7 +234,7 @@ Expression* Exponentiation::addExpression(Expression* e) {
     if (multExpr != nullptr) {
         return multExpr->addExpression(this);
     }
-    // handle addition  handle cases like 2^(1/2) + 0
+    // handle cases like 2^(1/2)+0
     Integer* intExpr = dynamic_cast<Integer*>(e);
     if (intExpr != nullptr)
         return intExpr->addExpression(this);

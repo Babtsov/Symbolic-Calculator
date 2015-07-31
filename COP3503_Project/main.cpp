@@ -45,6 +45,10 @@ Expression* treeBuilder(vector<string> RPNtokens) {
             else if (token == "^") {
                 expStack.push(new Exponentiation(leftTerm,rightTerm));
             }
+            else if (token == "rt") {
+                Division* exponent = new Division(new Integer(1),leftTerm);
+                expStack.push(new Exponentiation(rightTerm,exponent));
+            }
         }
         else {
             expStack.push(new Integer(stoi(token)));
