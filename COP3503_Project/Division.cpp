@@ -10,7 +10,7 @@
 #include "Integer.hpp"
 #include "Addition.hpp"
 #include "Multiplication.hpp"
-#include <exception>
+#include <stdexcept>
 #include <iostream>
 using namespace std;
 
@@ -49,9 +49,11 @@ Expression* Division::factorsToMultExpr(std::vector<Expression*> factors) {
 Division::Division(Expression* ls,Expression* rs){
     double denomValue = rs->getDecimalRepresentation();
     if (abs(denomValue) < 5e-10) {
-        std::cerr << "Error:: the following faction: ";
-        std::cerr << "(" << ls->toString() << ")/(" << rs->toString() <<")" << endl;
-        std::cerr << "has a zero as a denominator: " << rs->toString() << endl;
+        stringstream errorString;
+        errorString << "Zero denominator: " << rs->toString() << endl;
+        errorString << "\t\tin the following fraction: ";
+        errorString << "(" << ls->toString() << ")/(" << rs->toString() <<")" << endl;
+        throw runtime_error(errorString.str());
     }
     leftSide = ls; //numerator
     rightSide = rs; //denominator
@@ -138,7 +140,6 @@ std::string Division::toString() {
         copyLeftSide->negate();
     if (copyRighSide->isNegative())
         copyRighSide->negate();
-    
     // don't print parenthesis for integers or constants
     if (copyLeftSide->getLeftSide() != nullptr && copyLeftSide->getRightSide() != nullptr)
         str << "(" << copyLeftSide->toString() << ")";

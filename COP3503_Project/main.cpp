@@ -17,6 +17,7 @@
 #include "Division.hpp"
 #include "Integer.hpp"
 #include "tests/DataStructureTests.hpp"
+#include <stdexcept>
 using namespace std;
 
 Expression* treeBuilder(vector<string> RPNtokens) {
@@ -24,8 +25,7 @@ Expression* treeBuilder(vector<string> RPNtokens) {
     for (string token : RPNtokens) {
         if (isOperation(token)) {
             if (expStack.size() < 2) {
-                cout << "Error:: failed to generate Expression tree" << endl;
-                return nullptr;
+                throw runtime_error("Failed to parse expression. Please check your syntax.\n");
             }
             Expression* rightTerm = expStack.top();
             expStack.pop();
@@ -51,46 +51,41 @@ Expression* treeBuilder(vector<string> RPNtokens) {
             }
         }
         else {
-            expStack.push(new Integer(stoi(token)));
+            try {
+                expStack.push(new Integer(stoi(token)));
+            }
+            catch (exception& e) {
+                stringstream errorString;
+                errorString << "Invalid token '" << token <<"'"<<endl;
+                throw runtime_error(errorString.str());
+            }
         }
     }
     assert(expStack.size() == 1);
+    if (expStack.size() != 1) {
+        throw runtime_error("Failed to parse expression. Please check your syntax.\n");
+    }
     return expStack.top();
 }
 
 int main(int argc, const char * argv[]) {
-//    MultiplicationIsEqualTest();
-//    DivisionToStringTest();
-//    MultiplicationGetFactorsTest();
     do {
-    cout << "> ";
-// Collect all the tokens from the user
-//    stringstream cin;
-//    cin << "4 * -5 * ( -3 - -7 ) - 2 + ( 6 * ( 5 - 8 ) - 9 )";
-// 4 * -5 - 9 * ( 2 / 7 + 9 ) / ( 8 + 6 / 13 )
-// 4 * -5 - 9 * ( 2 / 7 + 9 ) ^ ( 8 + 6 / 13 )
-
-    string inputStr,token;
-    getline(cin,inputStr);
-    vector<string> tokens = tokenizer(inputStr);
-    
-    auto RPN_tokens = convertToRPN(tokens);
-    
-//    cout << "RPN tokens: ";
-//    for (auto RPN_token: RPN_tokens){
-//        cout<< RPN_token <<" ";
-//    }
-    cout << endl;
-    auto root = treeBuilder(RPN_tokens);
-    if (root == nullptr) {
-        exit(EXIT_FAILURE);
-    }
-
-    cout << "Unsimplified: "<< root->toString() << " = " << root->getDecimalRepresentation() << endl;
-    Expression* simplified = root->simplify();
-    cout << "Simplified: " << simplified->toString() << " = " << simplified->getDecimalRepresentation() << endl;
-    delete simplified;
-    delete root;
-    } while (0);
+        cout << "> ";
+        string inputStr;
+        getline(cin,inputStr);
+        vector<string> tokens = tokenizer(inputStr);
+        auto RPN_tokens = convertToRPN(tokens);
+        try {
+            auto root = treeBuilder(RPN_tokens);
+            cout << "Unsimplified: "<< root->toString() << " = " << root->getDecimalRepresentation() << endl;
+            Expression* simplified = root->simplify();
+            cout << "Simplified: " << simplified->toString() << " = " << simplified->getDecimalRepresentation() << endl;
+            delete simplified;
+            delete root;
+        } catch (exception &e) {
+            cerr << "Error:: " << e.what() << endl;
+        }
+        
+    } while (1);
     return 0;
 }

@@ -12,6 +12,7 @@
 #include "Integer.hpp"
 #include <cmath>
 #include <iostream>
+#include <stdexcept>
 using namespace std;
 
 Exponentiation::Exponentiation(Expression* ls,Expression* rs) {
@@ -156,23 +157,37 @@ Expression* Exponentiation::simplify() {
         delete exponent;
         return simplifiedMultRaised;
     }
-    // takes care when the exponent is a fraction 8^(1/2) = 2^1*2^(1/2)
+    // takes care when we have an exponent raised to an exponent (2^(1/2))^(1/2)
+    Exponentiation* expoExprBase = dynamic_cast<Exponentiation*>(base);
+    if (expoExprBase != nullptr) {
+        Expression* expoOfTheBase = expoExprBase->getRightSide();
+        Expression* combinedExpo = expoOfTheBase->multiplyExpression(exponent);
+        Expression* dupBaseOfBase = expoExprBase->getLeftSide()->duplicate();
+        Expression* unsimplifiedOverall = new Exponentiation(dupBaseOfBase,combinedExpo);
+        Expression* simplifiedOverall = unsimplifiedOverall->simplify();
+        delete unsimplifiedOverall;
+        delete base;
+        delete exponent;
+        return simplifiedOverall;
+    }
+    // takes care of when the exponent is a fraction 8^(1/2) = 2^1*2^(1/2)
     Division* divExpo = dynamic_cast<Division*>(exponent);
     if (divExpo != nullptr) {
         Integer* expoNum =  dynamic_cast<Integer*>(divExpo->getLeftSide());
         Integer* expoDenom =  dynamic_cast<Integer*>(divExpo->getRightSide());
         if (expoNum == nullptr || expoDenom == nullptr) {
-            std::cerr << "Error:: the following expression: ";
-            std::cerr << this->toString() << endl;
-            std::cerr << "has an unsupported exponent: " << rightSide->toString() << endl;
+            stringstream errorString;
+            errorString << "Unsupported exponent: " << rightSide->toString() << endl;
+            errorString << "\t\tin the following expression: " << this->toString() << endl;
+            throw runtime_error(errorString.str());
         }
-        
         Expression* simplifiedRootExpr = simplifyRoot(base,expoNum,expoDenom);
         delete base;
         delete exponent;
         return simplifiedRootExpr;
     }
-    
+
+    // default case if none of the above applied
     Expression* defaultSimplified = new Exponentiation(base,exponent);
     if (this->isNegative())
         defaultSimplified->negate();
@@ -215,7 +230,7 @@ Expression* Exponentiation::addExpression(Expression* e) {
         if (!dupThis->isEqual(dupThat))
             return nullptr;
         // at this point, they must be equal.
-        delete dupThat; //we don't need DupThat anymore since it's equal to dupThis anyway
+        delete dupThat; //we don't need dupThat anymore since it's equal to dupThis anyway
         if (this->isNegative() && expoExpr->isNegative()) {
             Integer* negTwo = new Integer(-2);
             return new Multiplication(negTwo,dupThis);
