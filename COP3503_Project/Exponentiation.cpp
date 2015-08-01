@@ -76,6 +76,12 @@ Expression* Exponentiation::raiseFraction(Division* divBase, Expression* exponen
     return simplifiedDiv;
 }
 Expression* Exponentiation::simplifyRoot(Expression* base,Integer* expoNum,Integer* expoDenom) {
+    if (base->isNegative() && expoDenom->getValue() % 2 == 0) {
+        stringstream errorString;
+        errorString << "Negative expression raised to an even root" << endl;
+        errorString << "\t\tin the following expression: " << this->toString() << endl;
+        throw runtime_error(errorString.str());
+    }
     Integer* intBase = dynamic_cast<Integer*>(base);
     if ( expoNum->getValue() >= expoDenom->getValue()) {
         int factoredExpo = expoNum->getValue() / expoDenom->getValue();
@@ -90,7 +96,7 @@ Expression* Exponentiation::simplifyRoot(Expression* base,Integer* expoNum,Integ
         return combinedExprSimplified;
     }
     else if (intBase != nullptr) {
-        if (intBase->getValue() == 1 || intBase->getValue() == 0)
+        if (intBase->getValue() == 1 || intBase->getValue() == 0 || intBase->getValue() == -1)
             return new Integer(intBase->getValue());
         vector<Expression*> primes = intBase->getNumeratorFactors(true);
         if (primes.size() == 1) {

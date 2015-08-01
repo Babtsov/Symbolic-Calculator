@@ -10,6 +10,7 @@
 #include "Exponentiation.hpp"
 #include "Division.hpp"
 #include "Integer.hpp"
+#include <algorithm>
 using namespace std;
 
 std::pair< Integer*, std::vector<Expression*> > Multiplication::splitCoefAndFactors(Multiplication* lhs) {
@@ -85,6 +86,10 @@ std::vector<Expression*> Multiplication::getUnsimplifiedFactors() {
     else
         factors.push_back(rightSide->duplicate());
     return factors;
+}
+bool Multiplication::sortFactors(Expression *lhs, Expression *rhs){
+    Integer* intExpr = dynamic_cast<Integer*>(lhs);
+    return intExpr != nullptr; //lhs < rhs if lhs is integer
 }
 
 std::vector<Expression*> Multiplication::getFactors() {
@@ -207,6 +212,7 @@ std::string Multiplication::toString(){
     auto terms = getUnsimplifiedFactors();
     
     assert(terms.size() > 1); //make sure we have at least 2 terms to print
+    std::sort(begin(terms), end(terms), sortFactors);
     if (this->isNegative()) { //if the overall expression is negative, print a -
         str << "-";
     }

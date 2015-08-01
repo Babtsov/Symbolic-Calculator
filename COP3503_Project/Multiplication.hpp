@@ -19,7 +19,8 @@ private:
     Expression* rightSide;
     std::pair< Integer*, std::vector<Expression*> > splitCoefAndFactors(Multiplication* mult);
     Expression* factorsToMultExpr(std::vector<Expression*> factors);
-    std::vector<Expression*> getUnsimplifiedFactors(); 
+    std::vector<Expression*> getUnsimplifiedFactors();
+    static bool sortFactors(Expression *lhs, Expression *rhs);
     
 public:
     std::vector<Expression*> getFactors();
