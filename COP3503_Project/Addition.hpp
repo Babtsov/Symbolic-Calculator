@@ -15,6 +15,7 @@ class Addition : public Expression {
 private:
     Expression* leftSide;
     Expression* rightSide;
+    static bool sortTerms(Expression *lhs, Expression *rhs);
     
 public:
     Addition(Expression* ls,Expression* rs);

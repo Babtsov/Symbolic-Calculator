@@ -10,6 +10,7 @@
 #include "Integer.hpp"
 #include "Addition.hpp"
 #include "Multiplication.hpp"
+#include "Exponentiation.hpp"
 #include <stdexcept>
 #include <iostream>
 using namespace std;
@@ -27,6 +28,8 @@ vector<Expression*> Division::combineExpressions(vector<Expression*> lhs,vector<
     return combined;
 }
 Expression* Division::factorsToMultExpr(std::vector<Expression*> factors) {
+    if (factors.size() == 1)
+        return factors.front();
     stack<Expression*> itemsToReturn;
     if (factors.empty()) {
         itemsToReturn.push(new Integer(1));
@@ -45,7 +48,25 @@ Expression* Division::factorsToMultExpr(std::vector<Expression*> factors) {
     }
     return itemsToReturn.top();
 }
-
+void Division::rationalizeFactors(std::vector<Expression*> &numFactors, std::vector<Expression*> &denomFactors) {
+    for (int i = 0; i < denomFactors.size(); i++) {
+        Exponentiation* factor = dynamic_cast<Exponentiation*>(denomFactors[i]);
+        //isRoot() makes sure that expoFactor has an exponent of type division of two Integers
+        if (factor != nullptr && factor->isRoot()) {
+            auto divExpo = dynamic_cast<Division*>(factor->getRightSide());
+            auto numerator = dynamic_cast<Integer*>(divExpo->getLeftSide());
+            auto denominator = dynamic_cast<Integer*>(divExpo->getRightSide());
+            
+            int newNumerator = denominator->getValue() - numerator->getValue() % denominator->getValue();
+            Division* newExponent = new Division(new Integer(newNumerator),denominator->duplicate());
+            auto rationalizingExpr = new Exponentiation(factor->getLeftSide()->duplicate(),newExponent);
+            auto replacedTerm =factor->getLeftSide()->duplicate();
+            delete denomFactors[i]; // remove the root factor from the denom factors
+            denomFactors[i] = replacedTerm;
+            numFactors.push_back(rationalizingExpr);
+        }
+    }
+}
 Division::Division(Expression* ls,Expression* rs){
     double denomValue = rs->getDecimalRepresentation();
     if (abs(denomValue) < 5e-10) {
@@ -99,6 +120,8 @@ Expression* Division::simplify() {
             }
         }
     }
+    // TODO:: insert
+    rationalizeFactors(combinedNumFactors,combinedDenomFactors);
     // filter all the nulls and 1's
     Integer* numberOne = new Integer(1);
     vector<Expression*> filteredNum;

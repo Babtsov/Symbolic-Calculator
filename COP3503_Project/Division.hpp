@@ -17,6 +17,7 @@ private:
     Expression* rightSide; //denominator
     std::vector<Expression*> combineExpressions(std::vector<Expression*> lhs,std::vector<Expression*> rhs);
     Expression* factorsToMultExpr(std::vector<Expression*> factors);
+    void rationalizeFactors(std::vector<Expression*> &numFactors, std::vector<Expression*> &denomFactors);
     
 public:
     Division(Expression* ls,Expression* rs);

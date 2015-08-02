@@ -8,7 +8,12 @@
 
 #include "Addition.hpp"
 #include "Integer.hpp"
+#include <algorithm>
 using namespace std;
+
+bool Addition::sortTerms(Expression *lhs, Expression *rhs){
+    return !lhs->isNegative();
+}
 
 Addition::Addition(Expression* ls,Expression* rs) {
     leftSide = ls;
@@ -86,7 +91,7 @@ std::vector<Expression*> Addition::getAdditiveTerms() {
 std::string Addition::toString(){
     stringstream str;
     auto terms = getAdditiveTerms();
-    
+    std::sort(begin(terms), end(terms), sortTerms);
     assert(terms.size() > 1); //make sure we have at least 2 terms to print
     
     str << terms[0]->toString();

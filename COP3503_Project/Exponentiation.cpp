@@ -101,7 +101,10 @@ Expression* Exponentiation::simplifyRoot(Expression* base,Integer* expoNum,Integ
         vector<Expression*> primes = intBase->getNumeratorFactors(true);
         if (primes.size() == 1) {
             Division* exponent = new Division(expoNum->duplicate(),expoDenom->duplicate());
-            return new Exponentiation(base->duplicate(),exponent);
+            Exponentiation* combined = new Exponentiation(base->duplicate(),exponent);
+            if ( this->isNegative())
+                combined->negate();
+            return combined;
         }
         stack<Expression*> multStack;
         for (auto term : primes) {
@@ -123,6 +126,18 @@ Expression* Exponentiation::simplifyRoot(Expression* base,Integer* expoNum,Integ
         return simplified;
     }
     return this->duplicate();
+}
+bool Exponentiation::isRoot() {
+    Division* divExpo = dynamic_cast<Division*>(rightSide);
+    if (divExpo == nullptr)
+        return false;
+    Integer* intNum = dynamic_cast<Integer*>(divExpo->getLeftSide());
+    if (intNum == nullptr)
+        return false;
+    Integer* intDenom = dynamic_cast<Integer*>(divExpo->getRightSide());
+    if (intDenom == nullptr)
+        return false;
+    return true;
 }
 Expression* Exponentiation::simplify() {
     Expression* base = leftSide->simplify();

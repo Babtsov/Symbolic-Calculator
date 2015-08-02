@@ -24,6 +24,7 @@ private:
     Expression* simplifyRoot(Expression* base,Integer* expoNum,Integer* expoDenom);
     
 public:
+    bool isRoot();
     Exponentiation(Expression* ls,Expression* rs);
     virtual double getDecimalRepresentation();
     virtual std::vector<Expression*> getNumeratorFactors(bool breakIntoPrimes);

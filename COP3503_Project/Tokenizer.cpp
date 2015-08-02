@@ -7,6 +7,7 @@
 //
 
 #include "Tokenizer.hpp"
+#include <stdexcept>
 using namespace std;
 
 // checks if the string is an operation.
@@ -69,8 +70,7 @@ vector<string> convertToRPN(vector<string> tokens) {
                 opStack.pop();
             }
             if (opStack.empty() || opStack.top() != "(") {
-                cerr << "mismatch in parenthesis 1"<<endl;
-                exit(EXIT_FAILURE);
+                throw runtime_error("Mismatch in parenthesis. Please try again.\n");
             }
             opStack.pop();
         }
@@ -83,8 +83,7 @@ vector<string> convertToRPN(vector<string> tokens) {
      */
     while (!opStack.empty()) {
         if ( isParenthesis(opStack.top()) ) {
-            cerr << "mismatch in parenthesis 2"<<endl;
-            exit(EXIT_FAILURE);
+            throw runtime_error("Mismatch in parenthesis. Please try again.\n");
         }
         reversePolish.push_back(opStack.top());
         opStack.pop();

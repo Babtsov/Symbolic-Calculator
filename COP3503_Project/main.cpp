@@ -61,7 +61,6 @@ Expression* treeBuilder(vector<string> RPNtokens) {
             }
         }
     }
-    assert(expStack.size() == 1);
     if (expStack.size() != 1) {
         throw runtime_error("Failed to parse expression. Please check your syntax.\n");
     }
@@ -74,8 +73,8 @@ int main(int argc, const char * argv[]) {
         string inputStr;
         getline(cin,inputStr);
         vector<string> tokens = tokenizer(inputStr);
-        auto RPN_tokens = convertToRPN(tokens);
         try {
+            auto RPN_tokens = convertToRPN(tokens);
             auto root = treeBuilder(RPN_tokens);
             cout << "Unsimplified: "<< root->toString() << " = " << root->getDecimalRepresentation() << endl;
             Expression* simplified = root->simplify();
