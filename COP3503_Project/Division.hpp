@@ -35,6 +35,7 @@ public:
     virtual void negate();
     virtual bool isNegative();
     virtual bool isEqual(Expression* e);
+    virtual bool isCombinedExpression();
     virtual ~Division();
 };
 

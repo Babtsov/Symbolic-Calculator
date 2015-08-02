@@ -59,7 +59,7 @@ void Division::rationalizeFactors(std::vector<Expression*> &numFactors, std::vec
             
             int newNumerator = denominator->getValue() - numerator->getValue() % denominator->getValue();
             Division* newExponent = new Division(new Integer(newNumerator),denominator->duplicate());
-            auto rationalizingExpr = new Exponentiation(factor->getLeftSide()->duplicate(),newExponent);
+            auto rationalizingExpr = new Exponentiation(factor->isNegative(),factor->getLeftSide()->duplicate(),newExponent);
             auto replacedTerm =factor->getLeftSide()->duplicate();
             delete denomFactors[i]; // remove the root factor from the denom factors
             denomFactors[i] = replacedTerm;
@@ -163,13 +163,14 @@ std::string Division::toString() {
         copyLeftSide->negate();
     if (copyRighSide->isNegative())
         copyRighSide->negate();
+    
     // don't print parenthesis for integers or constants
-    if (copyLeftSide->getLeftSide() != nullptr && copyLeftSide->getRightSide() != nullptr)
+    if (copyLeftSide->isCombinedExpression())
         str << "(" << copyLeftSide->toString() << ")";
     else
         str << copyLeftSide->toString();
     str << "/";
-    if (copyRighSide->getLeftSide() != nullptr && copyRighSide->getRightSide() != nullptr)
+    if (copyRighSide->isCombinedExpression())
         str << "(" << copyRighSide->toString() << ")";
     else
        str << copyRighSide->toString();
@@ -230,6 +231,9 @@ bool Division::isEqual(Expression* e) {
     if (this->isNegative() != thatFraction->isNegative())
         return false;
     return leftSide->isEqual(thatFraction->getLeftSide()) && rightSide->isEqual(thatFraction->getRightSide());
+}
+bool Division::isCombinedExpression() {
+    return true;
 }
 Division::~Division() {
     delete leftSide;

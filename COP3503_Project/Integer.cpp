@@ -81,11 +81,7 @@ Expression* Integer::multiplyExpression(Expression* e) {
         return new Integer(0);
     if (getValue() == 1)
         return e->duplicate();
-    if (getValue() == -1) {
-        Expression* dupExpr = e->duplicate();
-        dupExpr->negate();
-        return dupExpr;
-    }
+    
     Integer* intExpr = dynamic_cast<Integer*>(e);
     if (intExpr != nullptr)
         return new Integer(this->value * intExpr->getValue());
@@ -114,6 +110,9 @@ bool Integer::isEqual(Expression* e){
     if (intExpression == nullptr)
         return false;
     return this->value == intExpression->getValue();
+}
+bool Integer::isCombinedExpression() {
+    return false;
 }
 Integer::~Integer(){
     value = 0;

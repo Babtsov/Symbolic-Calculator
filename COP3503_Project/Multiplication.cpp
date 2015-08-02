@@ -209,32 +209,41 @@ Expression* Multiplication::simplify() {
 }
 std::string Multiplication::toString(){
     stringstream str;
-    auto terms = getUnsimplifiedFactors();
+    vector<Expression*> terms = getUnsimplifiedFactors();
     
-    assert(terms.size() > 1); //make sure we have at least 2 terms to print
+    assert(terms.size() > 1); //make sure we have at least 2 terms in our multiplication
     std::sort(begin(terms), end(terms), sortFactors);
+    
     if (this->isNegative()) { //if the overall expression is negative, print a -
         str << "-";
     }
-    for (int i = 0; i < terms.size() - 1; i++) {
-        if (terms[i]->isNegative()) //make sure we print all terms as positive
-            terms[i]->negate();     // since we took care of the overall negative
-        
-        if (terms[i]->getLeftSide() != nullptr && terms[i]->getRightSide() != nullptr)
-            str << "(" << terms[i]->toString() <<")" << "*"; //means term is some kind of compound expression.
-        else
-            str <<terms[i]->toString() << "*";
+    Integer numberOne(1);
+    vector<Expression*> filteredTerms;
+    for (auto& factor : terms) {
+        if (factor->isNegative()) //make sure we print all terms as positive
+            factor->negate();     // since we took care of the overall negative
+        if (factor->isEqual(&numberOne)) {
+            delete factor;
+            factor = nullptr;
+        }
+        if (factor != nullptr)
+            filteredTerms.push_back(factor);
     }
-    if (terms[terms.size() - 1]->isNegative()) //make sure we print each term
-        terms[terms.size() - 1]->negate(); // as a positive since we took care of the overall negative
-    if (terms[terms.size() - 1]->getLeftSide() != nullptr && terms[terms.size() - 1]->getRightSide() != nullptr)
-        str << "(" << terms[terms.size() - 1]->toString() <<")"; //means term is some kind of compound expression.
-    else
-        str <<terms[terms.size() - 1]->toString();
-    
-    for (auto term : terms)
-        delete term;
-
+    for (int i = 0; i < filteredTerms.size(); i++) {
+        if (filteredTerms[i]->isCombinedExpression())
+            str << "(" << filteredTerms[i]->toString() <<")"; //means term is some kind of compound expression.
+        else
+            str <<filteredTerms[i]->toString();
+        
+        if (i != filteredTerms.size() -1 )
+            str << "*";
+    }
+    // cleanup
+    for (auto term : terms) {
+        if (term != nullptr) {
+            delete term;
+        }
+    }
     return str.str();
 }
 Expression* Multiplication::getLeftSide(){
@@ -355,6 +364,17 @@ bool Multiplication::isEqual(Expression* e) {
             delete term;
     }
     return valueToReturn;
+}
+bool Multiplication::isCombinedExpression() {
+    // DON'T count expressions such as 1*2^(1/2) as combined expressions
+    auto factors = getUnsimplifiedFactors();
+    Integer numberOne(1),negativeOne(-1);
+    int validFactors = 0;
+    for (auto factor : factors) {
+        if (!factor->isEqual(&numberOne) && !factor->isEqual(&negativeOne))
+            validFactors++;
+    }
+    return validFactors >= 2;
 }
 Multiplication::~Multiplication(){
     delete leftSide;

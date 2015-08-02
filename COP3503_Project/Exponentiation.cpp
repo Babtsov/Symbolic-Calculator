@@ -15,18 +15,16 @@
 #include <stdexcept>
 using namespace std;
 
-Exponentiation::Exponentiation(Expression* ls,Expression* rs) {
+Exponentiation::Exponentiation(bool isNegative, Expression* ls,Expression* rs) {
     leftSide = ls;
     rightSide = rs;
-    isNeg = false;
+    isNeg = isNegative;
 }
-
 double Exponentiation::getDecimalRepresentation() {
     if (isNeg)
         return -1*pow(leftSide->getDecimalRepresentation(), rightSide->getDecimalRepresentation());
     return pow(leftSide->getDecimalRepresentation(), rightSide->getDecimalRepresentation());
 }
-
 std::vector<Expression*> Exponentiation::getNumeratorFactors(bool breakIntoPrimes) {
     vector<Expression*> factors;    
     factors.push_back(this->duplicate());
@@ -45,8 +43,9 @@ std::vector<Expression*> Exponentiation::getAdditiveTerms() {
 Expression* Exponentiation::raiseMult(Multiplication* base, Expression* exponent) {
     vector<Expression*> factors = base->getFactors();
     stack<Expression*> factorsRaised;
+
     for (auto factor : factors)
-        factorsRaised.push(new Exponentiation(factor,exponent->duplicate()));
+        factorsRaised.push(new Exponentiation(false,factor,exponent->duplicate()));
     
     //build Multiplication tree
     assert(factorsRaised.size() >= 2);
@@ -67,8 +66,8 @@ Expression* Exponentiation::raiseFraction(Division* divBase, Expression* exponen
     auto denomDup = divBase->getRightSide()->duplicate();
     
     // create the new expression
-    auto numDupRaised = new Exponentiation(numDup,exponent->duplicate());
-    auto denomDupRaised = new Exponentiation(denomDup,exponent->duplicate());
+    auto numDupRaised = new Exponentiation(false,numDup,exponent->duplicate());
+    auto denomDupRaised = new Exponentiation(false,denomDup,exponent->duplicate());
     
     Division* constructedDiv = new Division(numDupRaised,denomDupRaised);
     Expression* simplifiedDiv = constructedDiv->simplify();
@@ -86,10 +85,10 @@ Expression* Exponentiation::simplifyRoot(Expression* base,Integer* expoNum,Integ
     if ( expoNum->getValue() >= expoDenom->getValue()) {
         int factoredExpo = expoNum->getValue() / expoDenom->getValue();
         int remainingExpo = expoNum->getValue() % expoDenom->getValue();
-        auto factoredExpoExpr = new Exponentiation(base->duplicate(),new Integer(factoredExpo));
+        auto factoredExpoExpr = new Exponentiation(false,base->duplicate(),new Integer(factoredExpo));
         if ( remainingExpo == 0)
             return factoredExpoExpr;
-        auto remainExpoExpr = new Exponentiation(base->duplicate(),new Division(new Integer(remainingExpo),expoDenom->duplicate()));
+        auto remainExpoExpr = new Exponentiation(false,base->duplicate(),new Division(new Integer(remainingExpo),expoDenom->duplicate()));
         auto combinedExpr = new Multiplication(remainExpoExpr,factoredExpoExpr);
         auto combinedExprSimplified = combinedExpr->simplify();
         delete combinedExpr;
@@ -101,7 +100,7 @@ Expression* Exponentiation::simplifyRoot(Expression* base,Integer* expoNum,Integ
         vector<Expression*> primes = intBase->getNumeratorFactors(true);
         if (primes.size() == 1) {
             Division* exponent = new Division(expoNum->duplicate(),expoDenom->duplicate());
-            Exponentiation* combined = new Exponentiation(base->duplicate(),exponent);
+            Exponentiation* combined = new Exponentiation(false,base->duplicate(),exponent);
             if ( this->isNegative())
                 combined->negate();
             return combined;
@@ -109,7 +108,7 @@ Expression* Exponentiation::simplifyRoot(Expression* base,Integer* expoNum,Integ
         stack<Expression*> multStack;
         for (auto term : primes) {
             Division* exponent = new Division(expoNum->duplicate(),expoDenom->duplicate());
-            Expression* unsimiplfied = new Exponentiation(term->duplicate(),exponent);
+            Expression* unsimiplfied = new Exponentiation(false,term->duplicate(),exponent);
             multStack.push(unsimiplfied->simplify());
             delete unsimiplfied;
         }
@@ -140,13 +139,22 @@ bool Exponentiation::isRoot() {
     return true;
 }
 Expression* Exponentiation::simplify() {
+    if (this->isNeg) {
+        auto negOneRaised = new Integer(-1);
+        auto posSelf = new Exponentiation(false,leftSide->duplicate(),rightSide->duplicate());
+        auto combined = new Multiplication(negOneRaised,posSelf);
+        
+        auto combinedSimplified = combined->simplify();
+        delete combined;
+        return combinedSimplified;
+    }
     Expression* base = leftSide->simplify();
     Expression* exponent = rightSide->simplify();
     // take care of negative exponents 3^(-2) =1/(3^2), notice that preserving the original simplified base and expo
     if (exponent->isNegative()) {
         Integer* newNum = new Integer(1);
         exponent->negate();
-        Exponentiation* newDenom = new Exponentiation(base,exponent);
+        Exponentiation* newDenom = new Exponentiation(isNeg,base,exponent);
         Expression* combinedExpr = new Division(newNum,newDenom);
         Expression* combinedExprSimplified = combinedExpr->simplify();
         delete combinedExpr;
@@ -184,7 +192,7 @@ Expression* Exponentiation::simplify() {
         Expression* expoOfTheBase = expoExprBase->getRightSide();
         Expression* combinedExpo = expoOfTheBase->multiplyExpression(exponent);
         Expression* dupBaseOfBase = expoExprBase->getLeftSide()->duplicate();
-        Expression* unsimplifiedOverall = new Exponentiation(dupBaseOfBase,combinedExpo);
+        Expression* unsimplifiedOverall = new Exponentiation(isNeg,dupBaseOfBase,combinedExpo);
         Expression* simplifiedOverall = unsimplifiedOverall->simplify();
         delete unsimplifiedOverall;
         delete base;
@@ -209,21 +217,19 @@ Expression* Exponentiation::simplify() {
     }
 
     // default case if none of the above applied
-    Expression* defaultSimplified = new Exponentiation(base,exponent);
-    if (this->isNegative())
-        defaultSimplified->negate();
+    Expression* defaultSimplified = new Exponentiation(isNeg,base,exponent);
     return defaultSimplified;
 }
 std::string Exponentiation::toString() {
     stringstream str;
     if (isNeg)
         str <<"-";
-    if ((leftSide->getLeftSide() != nullptr && leftSide->getRightSide() != nullptr) || leftSide->isNegative())
+    if (leftSide->isCombinedExpression() || leftSide->isNegative())
         str << "(" << leftSide->toString() << ")";
     else
         str << leftSide->toString();
     str << "^";
-    if ((rightSide->getLeftSide() != nullptr && rightSide->getRightSide() != nullptr) || rightSide->isNegative())
+    if (rightSide->isCombinedExpression() || rightSide->isNegative())
         str << "(" << rightSide->toString() << ")";
     else
         str << rightSide->toString();
@@ -283,7 +289,7 @@ Expression* Exponentiation::multiplyExpression(Expression* e) {
     Exponentiation* expoExpr = dynamic_cast<Exponentiation*>(e);
     if (expoExpr != nullptr && this->leftSide->isEqual(expoExpr->getLeftSide())) {
         Expression* thatExponent = expoExpr->getRightSide();
-        Expression* combinedExpr = new Exponentiation(leftSide->duplicate(), rightSide->addExpression(thatExponent));
+        Expression* combinedExpr = new Exponentiation(false,leftSide->duplicate(), rightSide->addExpression(thatExponent));
         if (this->isNegative() != expoExpr->isNegative())
             combinedExpr->negate();
         Expression* simpleCombinedExpr = combinedExpr->simplify();
@@ -299,9 +305,7 @@ Expression* Exponentiation::multiplyExpression(Expression* e) {
     return nullptr;
 }
 Expression* Exponentiation::duplicate() {
-    Exponentiation* dupExponential = new Exponentiation(leftSide->duplicate(),rightSide->duplicate());
-    if (isNeg)
-        dupExponential->negate();
+    Exponentiation* dupExponential = new Exponentiation(isNeg,leftSide->duplicate(),rightSide->duplicate());
     return dupExponential;
 }
 void Exponentiation::negate() {
@@ -320,6 +324,9 @@ bool Exponentiation::isEqual(Expression* e) {
     if (thatExpo->isNegative() != this->isNegative())
         return false;
     return leftSide->isEqual(e->getLeftSide()) && rightSide->isEqual(e->getRightSide());
+}
+bool Exponentiation::isCombinedExpression() {
+    return true;
 }
 Exponentiation::~Exponentiation() {
     delete leftSide;

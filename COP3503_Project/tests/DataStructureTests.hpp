@@ -17,7 +17,6 @@
 using namespace std;
 
 void AdditionIsEqualTest(){
-    
     cout << "Start AdditionIsEqualTest: " << endl;
     Expression* s1 = new Integer(5);
     Expression* s2 = new Integer(2);
@@ -88,5 +87,22 @@ void MultiplicationGetFactorsTest() {
     cout << "m2: " << m2->toString() << endl;
     auto factors = m2->getFactors();
     cout << "End MultiplicationGetFactorsTest" << endl;
+}
+void isEqual() {
+    auto one = new Integer(1);
+    Integer oneStack(2);
+    if (one->isEqual(&oneStack)) {
+        cout << endl << "equal" << endl;
+    }
+    else
+        cout << endl << "not equal" << endl;
+}
+void typeIdTest() {
+    Multiplication* copyLeftSide = new Multiplication(new Integer(1),new Integer(2));
+    if ( typeid(copyLeftSide) != typeid(Multiplication *))
+        cout <<"unequal types";
+    else
+        cout <<"equal types";
+    cout << endl;
 }
 #endif /* DataStructureTests_cpp */

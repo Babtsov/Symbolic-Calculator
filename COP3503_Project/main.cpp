@@ -43,11 +43,14 @@ Expression* treeBuilder(vector<string> RPNtokens) {
                 expStack.push(new Division(leftTerm,rightTerm));
             }
             else if (token == "^") {
-                expStack.push(new Exponentiation(leftTerm,rightTerm));
+                expStack.push(new Exponentiation(false,leftTerm,rightTerm));
             }
             else if (token == "rt") {
                 Division* exponent = new Division(new Integer(1),leftTerm);
-                expStack.push(new Exponentiation(rightTerm,exponent));
+                expStack.push(new Exponentiation(false,rightTerm,exponent));
+            }
+            else {
+                throw runtime_error("Unsupported operation detected.\n");
             }
         }
         else {

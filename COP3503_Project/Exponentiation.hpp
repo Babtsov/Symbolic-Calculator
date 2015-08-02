@@ -25,7 +25,7 @@ private:
     
 public:
     bool isRoot();
-    Exponentiation(Expression* ls,Expression* rs);
+    Exponentiation(bool isNegative, Expression* ls,Expression* rs);
     virtual double getDecimalRepresentation();
     virtual std::vector<Expression*> getNumeratorFactors(bool breakIntoPrimes);
     virtual std::vector<Expression*> getDenominatorFactors(bool breakIntoPrimes);
@@ -40,6 +40,7 @@ public:
     virtual void negate();
     virtual bool isNegative();
     virtual bool isEqual(Expression* e);
+    virtual bool isCombinedExpression();
     virtual ~Exponentiation();
 };
 #endif /* Exponentiation_cpp */

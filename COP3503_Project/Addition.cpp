@@ -176,6 +176,9 @@ bool Addition::isEqual(Expression* e) {
     }
     return valueToReturn;
 }
+bool Addition::isCombinedExpression() {
+    return true;
+}
 
 Addition::~Addition(){
     delete leftSide;
