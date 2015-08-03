@@ -22,7 +22,8 @@ void showHelp(){
     cout << "To take the Nth root of a number enter \"N rt M\" where N is the index and M is the number." << endl;
     cout << "\tFor example, 3 rt -54 is the 3rd (real) root of -54. Notice that unreal roots are unsupported." << endl;
     cout << "\tRoots are the same as a fractinal exponents. The previous example is equivalent to \"-54 ^ ( 1 / 3 )\"" << endl;
-    cout << "The following operators are supported +,-,*,/,^,rt. " << endl;
+    cout << "The following operators are supported +,-,*,/,^,rt. " << endl << endl;
+    
 }
 int main(int argc, const char * argv[]) {
     Calculator calc;

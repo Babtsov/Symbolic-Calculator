@@ -154,7 +154,7 @@ Expression* Exponentiation::simplify() {
     if (exponent->isNegative()) {
         Integer* newNum = new Integer(1);
         exponent->negate();
-        Exponentiation* newDenom = new Exponentiation(isNeg,base,exponent);
+        Exponentiation* newDenom = new Exponentiation(false,base,exponent);
         Expression* combinedExpr = new Division(newNum,newDenom);
         Expression* combinedExprSimplified = combinedExpr->simplify();
         delete combinedExpr;

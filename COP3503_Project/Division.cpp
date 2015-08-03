@@ -120,21 +120,19 @@ Expression* Division::simplify() {
             }
         }
     }
-    // TODO:: insert
     rationalizeFactors(combinedNumFactors,combinedDenomFactors);
     // filter all the nulls and 1's
-    Integer* numberOne = new Integer(1);
+    Integer numberOne(1),numberZero(0);
     vector<Expression*> filteredNum;
     for (auto factor : combinedNumFactors) {
-        if (factor != nullptr && !factor->isEqual(numberOne))
+        if (factor != nullptr && !factor->isEqual(&numberOne))
             filteredNum.push_back(factor);
     }
     vector<Expression*> filteredDenom;
     for (auto factor : combinedDenomFactors) {
-        if (factor != nullptr && !factor->isEqual(numberOne))
+        if (factor != nullptr && !factor->isEqual(&numberOne))
             filteredDenom.push_back(factor);
     }
-    delete numberOne;
     if (filteredDenom.size() == 0) { //we no longer have a denominator
         Expression* newNum = factorsToMultExpr(filteredNum);
         Expression* simplifiedNum = newNum->simplify();
@@ -148,6 +146,8 @@ Expression* Division::simplify() {
     Expression* newDenom = factorsToMultExpr(filteredDenom);
     Expression* simplifiedDenom = newDenom->simplify();
     delete newDenom;
+    if (simplifiedNum->isEqual(&numberZero))
+        return new Integer(0);
     return new Division(simplifiedNum,simplifiedDenom);
 }
 std::string Division::toString() {

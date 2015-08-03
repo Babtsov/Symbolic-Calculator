@@ -169,8 +169,11 @@ void Calculator::solve(std::string input) {
         delete root;
         cout << simplified->toString() << endl;
         prevAnswers.push_front(simplified);
-        if (prevAnswers.size() >= 5 ) //store only the 5 recent answers
+        if (prevAnswers.size() >= 5 ) { //store only the 5 recent answers
+            delete prevAnswers.back();
             prevAnswers.pop_back();
+        }
+
     } catch (exception &e) {
         cerr << "Error:: " << e.what() << endl;
     }

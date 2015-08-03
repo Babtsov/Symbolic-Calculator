@@ -34,28 +34,39 @@ std::vector<Expression*> Addition::getDenominatorFactors(bool breakIntoPrimes) {
 }
 
 Expression* Addition::simplify() {
-    // the key for simplifying addition expression is simplifying the whole addition chain.
-    vector<Expression*> additiveTerms = getAdditiveTerms(); // get all the atoms
     vector<Expression*> simplifiedTerms;
-    // make sure we simplify the atoms before trying to add them up
-    for (Expression* exp : additiveTerms)
-        simplifiedTerms.push_back(exp->simplify());
-    
-    for (int i = 0; i < simplifiedTerms.size() - 1; i++) {
-        if (simplifiedTerms[i] == nullptr)
-            continue;
-        for (int j = i + 1; j < simplifiedTerms.size(); j++) {
-            if (simplifiedTerms[j] == nullptr)
+    for (auto term : this->getAdditiveTerms()) {
+        simplifiedTerms.push_back(term->simplify());
+        delete term;
+    }
+    bool combOccured; //a flag to test if a combination occured. if no combination occured at all, we are done adding
+    do {
+        combOccured = false;
+        for (int i = 0; i < simplifiedTerms.size() - 1; i++) {
+            if (simplifiedTerms[i] == nullptr)
                 continue;
-            Expression* sum = simplifiedTerms[i]->addExpression(simplifiedTerms[j]);
-            if (sum != nullptr) {
-                delete simplifiedTerms[i];
-                delete simplifiedTerms[j];
-                simplifiedTerms[i] = sum;
-                simplifiedTerms[j] = nullptr;
+            for (int j = i + 1; j < simplifiedTerms.size(); j++) {
+                if (simplifiedTerms[j] == nullptr || simplifiedTerms[i] == nullptr)
+                    continue;
+                Expression* sum = simplifiedTerms[i]->addExpression(simplifiedTerms[j]);
+                Addition* sumAsAddition = dynamic_cast<Addition*>(sum);
+                if (sum != nullptr) {
+                    delete simplifiedTerms[i];
+                    delete simplifiedTerms[j];
+                    simplifiedTerms[i] = nullptr;
+                    simplifiedTerms[j] = nullptr;
+                    combOccured = true;
+                }
+                if (sum != nullptr && sumAsAddition == nullptr)
+                    simplifiedTerms.push_back(sum);
+                else if(sum != nullptr && sumAsAddition != nullptr) {
+                    simplifiedTerms.push_back(sumAsAddition->getLeftSide()->duplicate());
+                    simplifiedTerms.push_back(sumAsAddition->getRightSide()->duplicate());
+                    delete sumAsAddition;
+                }
             }
         }
-    }
+    } while(combOccured);
     // clean up the array of simplified terms from null pointers
     stack<Expression*> itemsToReturn;
     for (Expression* exp : simplifiedTerms) {
@@ -70,11 +81,9 @@ Expression* Addition::simplify() {
         itemsToReturn.pop();
         Expression* item2 = itemsToReturn.top();
         itemsToReturn.pop();
-        itemsToReturn.push(new Addition(item2, item1));
+        itemsToReturn.push(new Addition(item1, item2));
     }
-    //memory cleanup
-    for (auto term : additiveTerms)
-        delete term;
+    assert(itemsToReturn.size() == 1);
     return itemsToReturn.top();
 }
 std::vector<Expression*> Addition::getAdditiveTerms() {

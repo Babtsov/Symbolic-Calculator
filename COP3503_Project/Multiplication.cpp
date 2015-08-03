@@ -292,8 +292,10 @@ Expression* Multiplication::addExpression(Expression* e){
         delete thatCoef;
         for (auto factor : thatFactors)
             delete factor;
-        
-        return new Multiplication(coefSum,factorsToMultExpr(thisFactors));
+        Expression* unsimplified = new Multiplication(coefSum,factorsToMultExpr(thisFactors));
+        Expression* simplified = unsimplified->simplify();
+        delete unsimplified;
+        return simplified;
     }
     return nullptr;
 }
