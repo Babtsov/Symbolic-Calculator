@@ -8,86 +8,33 @@
 //  Target: x86_64-apple-darwin14.4.0
 //  Thread model: posix
 //
-
-#include "Tokenizer.hpp"
-#include "Expression.hpp"
-#include "Addition.hpp"
-#include "Multiplication.hpp"
-#include "Exponentiation.hpp"
-#include "Division.hpp"
-#include "Integer.hpp"
+#include "Calculator.hpp"
 #include "tests/DataStructureTests.hpp"
-#include <stdexcept>
 using namespace std;
 
-Expression* treeBuilder(vector<string> RPNtokens) {
-    stack<Expression*> expStack;
-    for (string token : RPNtokens) {
-        if (isOperation(token)) {
-            if (expStack.size() < 2) {
-                throw runtime_error("Failed to parse expression. Please check your syntax.\n");
-            }
-            Expression* rightTerm = expStack.top();
-            expStack.pop();
-            Expression* leftTerm = expStack.top();
-            expStack.pop();
-            if (token == "+" || token == "-") {
-                if (token == "-")
-                    rightTerm->negate();
-                expStack.push(new Addition(leftTerm,rightTerm));
-            }
-            else if (token == "*") {
-                expStack.push(new Multiplication(leftTerm,rightTerm));
-            }
-            else if (token == "/") {
-                expStack.push(new Division(leftTerm,rightTerm));
-            }
-            else if (token == "^") {
-                expStack.push(new Exponentiation(false,leftTerm,rightTerm));
-            }
-            else if (token == "rt") {
-                Division* exponent = new Division(new Integer(1),leftTerm);
-                expStack.push(new Exponentiation(false,rightTerm,exponent));
-            }
-            else {
-                throw runtime_error("Unsupported operation detected.\n");
-            }
-        }
-        else {
-            try {
-                expStack.push(new Integer(stoi(token)));
-            }
-            catch (exception& e) {
-                stringstream errorString;
-                errorString << "Invalid token '" << token <<"'"<<endl;
-                throw runtime_error(errorString.str());
-            }
-        }
-    }
-    if (expStack.size() != 1) {
-        throw runtime_error("Failed to parse expression. Please check your syntax.\n");
-    }
-    return expStack.top();
+void showHelp(){
+    cout << "HOW TO USE THE CALCULATOR" << endl << endl;
+    cout << "Enter a mathematical expression to be simplified. Use spaces between numbers, operators and parenthesis." << endl;
+    cout << "\tFor example, you can enter \"( 1 - -2 / 3 ) ^ ( 2 rt 16 )\"." << endl;
+    cout << "\tNotice that negative numbers are entered without spaces." << endl;
+    cout << "To use previous answers, enter \"ans\" in your expression." << endl;
+    cout << "\tFor example \"4 + ( ans / 5 ) ^ -2 + ans * 3 rt -2\"." << endl;
+    cout << "To take the Nth root of a number enter \"N rt M\" where N is the index and M is the number." << endl;
+    cout << "\tFor example, 3 rt -54 is the 3rd (real) root of -54. Notice that unreal roots are unsupported." << endl;
+    cout << "\tRoots are the same as a fractinal exponents. The previous example is equivalent to \"-54 ^ ( 1 / 3 )\"" << endl;
+    cout << "The following operators are supported +,-,*,/,^,rt. " << endl;
 }
-
 int main(int argc, const char * argv[]) {
+    Calculator calc;
+    showHelp();
     do {
         cout << "> ";
         string inputStr;
         getline(cin,inputStr);
-        vector<string> tokens = tokenizer(inputStr);
-        try {
-            auto RPN_tokens = convertToRPN(tokens);
-            auto root = treeBuilder(RPN_tokens);
-            cout << "Unsimplified: "<< root->toString() << " = " << root->getDecimalRepresentation() << endl;
-            Expression* simplified = root->simplify();
-            cout << "Simplified: " << simplified->toString() << " = " << simplified->getDecimalRepresentation() << endl;
-            delete simplified;
-            delete root;
-        } catch (exception &e) {
-            cerr << "Error:: " << e.what() << endl;
+        if (inputStr == "back") {
+            break;
         }
-        
+        calc.solve(inputStr);
     } while (1);
     return 0;
 }

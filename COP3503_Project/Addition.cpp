@@ -113,8 +113,49 @@ Expression* Addition::getRightSide() {
     return rightSide;
 }
 Expression* Addition::addExpression(Expression* e){
-    assert(0); //should not be invoked. denotes an internal error in the system
-    return nullptr;
+    vector<Expression*> combinedTerms;
+    auto thisTerms = getAdditiveTerms();
+    for (auto term : thisTerms) {
+        combinedTerms.push_back(term->simplify());
+        delete term;
+    }
+    auto thatTerms = e->getAdditiveTerms();
+    for (auto term : thatTerms) {
+        combinedTerms.push_back(term->simplify());
+        delete term;
+    }
+    for (int i = 0; i < combinedTerms.size() - 1; i++) {
+        if (combinedTerms[i] == nullptr)
+            continue;
+        for (int j = i + 1; j < combinedTerms.size(); j++) {
+            if (combinedTerms[j] == nullptr)
+                continue;
+            Expression* sum = combinedTerms[i]->addExpression(combinedTerms[j]);
+            if (sum != nullptr) {
+                delete combinedTerms[i];
+                delete combinedTerms[j];
+                combinedTerms[i] = sum;
+                combinedTerms[j] = nullptr;
+            }
+        }
+    }
+    // clean up the array of simplified terms from null pointers
+    stack<Expression*> itemsToReturn;
+    for (Expression* exp : combinedTerms) {
+        if (exp == nullptr) {
+            continue;
+        }
+        itemsToReturn.push(exp);
+    }
+    // build the new simplified addition tree
+    while (itemsToReturn.size() > 1) {
+        Expression* item1 = itemsToReturn.top();
+        itemsToReturn.pop();
+        Expression* item2 = itemsToReturn.top();
+        itemsToReturn.pop();
+        itemsToReturn.push(new Addition(item2, item1));
+    }
+    return itemsToReturn.top();
 }
 Expression* Addition::multiplyExpression(Expression* e) {
     return nullptr;

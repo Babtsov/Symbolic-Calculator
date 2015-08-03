@@ -8,8 +8,7 @@
 
 #ifndef DataStructureTests_cpp
 #define DataStructureTests_cpp
-
-#include "Tokenizer.hpp"
+#include <iostream>
 #include "Expression.hpp"
 #include "Addition.hpp"
 #include "Multiplication.hpp"
