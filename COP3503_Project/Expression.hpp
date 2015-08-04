@@ -9,6 +9,7 @@
 #ifndef Expression_cpp
 #define Expression_cpp
 
+#define NDEBUG
 #include <vector>
 #include <typeinfo>
 #include <string>

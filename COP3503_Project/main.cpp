@@ -8,12 +8,14 @@
 //  Target: x86_64-apple-darwin14.4.0
 //  Thread model: posix
 //
+
 #include "Calculator.hpp"
 #include "Expression.hpp"
 #include <stdexcept>
 #include <cstdlib>
 #include <deque>
 #include <iostream>
+
 //#include "tests/DataStructureTests.hpp"
 using namespace std;
 
