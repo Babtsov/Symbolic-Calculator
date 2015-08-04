@@ -14,6 +14,7 @@
 class Integer: public Expression {
 private:
     int value;
+    void primeFactorization(int x,std::vector<Expression*> &terms);
 public:
     Integer(int val);
     int getValue();

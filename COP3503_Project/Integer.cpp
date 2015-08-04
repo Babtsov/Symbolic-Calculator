@@ -25,6 +25,15 @@ Expression* Integer::getLeftSide() {
 Expression* Integer::getRightSide() {
     return nullptr;
 }
+void Integer::primeFactorization(int x,std::vector<Expression*> &terms) {
+    for(int i = 2; i <= x; i++ ) {
+        if( x % i == 0 ) {
+            terms.push_back(new Integer(i));
+            primeFactorization(x/i,terms);
+            break;
+        }
+    }
+}
 std::vector<Expression*> Integer::getNumeratorFactors(bool breakIntoPrimes) {
     std::vector<Expression*> numFactors;
     if (value == 1 || value == 0) {
@@ -39,17 +48,11 @@ std::vector<Expression*> Integer::getNumeratorFactors(bool breakIntoPrimes) {
         numFactors.push_back(new Integer (-1));
     }
     int val = abs(value);
-    int divider = 2;
-    while (val > 1) {
-        if (val % divider == 0) {
-            numFactors.push_back(new Integer(divider));
-            val /= divider;
-            continue;
-        }
-        divider++;
-    }
+    primeFactorization(val,numFactors);
     return numFactors;
 }
+
+
 std::vector<Expression*> Integer::getDenominatorFactors(bool breakIntoPrimes) {
     std::vector<Expression*> denumFactors;
     denumFactors.push_back(new Integer(1));

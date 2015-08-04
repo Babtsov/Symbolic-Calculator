@@ -169,7 +169,7 @@ void Calculator::solve(std::string input) {
         delete root;
         cout << simplified->toString() << endl;
         prevAnswers.push_front(simplified);
-        if (prevAnswers.size() >= 5 ) { //store only the 5 recent answers
+        if (prevAnswers.size() > 100 ) { //store up to 100 recent answers
             delete prevAnswers.back();
             prevAnswers.pop_back();
         }
@@ -177,6 +177,9 @@ void Calculator::solve(std::string input) {
     } catch (exception &e) {
         cerr << "Error:: " << e.what() << endl;
     }
+}
+std::deque<Expression*> Calculator::getPreviousAnswers() {
+    return prevAnswers;
 }
 
 Calculator::~Calculator() {

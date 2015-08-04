@@ -26,6 +26,7 @@ private:
     Expression* treeBuilder(std::vector<std::string> RPNtokens);
 public:
     void solve(std::string input);
+    std::deque<Expression*> getPreviousAnswers();
     ~Calculator();
 };
 

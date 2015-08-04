@@ -104,4 +104,8 @@ void typeIdTest() {
         cout <<"equal types";
     cout << endl;
 }
+void primeFactorizationTest() {
+    Integer* num = new Integer(13);
+    auto res = num->getNumeratorFactors(true);
+}
 #endif /* DataStructureTests_cpp */
