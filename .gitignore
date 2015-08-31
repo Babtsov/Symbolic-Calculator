@@ -1,0 +1,8 @@
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+*.out
+.DS_Store
+*.xcodeproj
